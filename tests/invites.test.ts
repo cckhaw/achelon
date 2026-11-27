@@ -137,7 +137,7 @@ describe("login tokens", () => {
     const [u] = await sysDb().select().from(schema.users).where(eq(schema.users.email, email));
     const raw = `known-${Math.random()}`;
     await sysDb().insert(schema.loginTokens).values({ userId: u.id, tokenHash: sha256Hex(raw), expiresAt: new Date(Date.now() + 60_000) });
-    expect(await redeemLoginToken(raw)).toEqual({ userId: u.id });
+    expect(await redeemLoginToken(raw)).toEqual({ userId: u.id, purpose: "login" });
     expect(await redeemLoginToken(raw)).toBeNull();
     const [m] = await sysDb().select().from(schema.memberships).where(eq(schema.memberships.userId, u.id));
     expect(m.status).toBe("active");

@@ -7,7 +7,7 @@ import { getProvider } from "@/lib/strava/provider";
 
 /** Daily housekeeping fan-out (Vercel Cron, 05:10 UTC). Per-tenant work goes through withTenant inside each helper. */
 export async function runDailyJobs(now = new Date()): Promise<Record<string, unknown>> {
-  const tenants = await sysDb().select().from(schema.tenants);
+  const tenants = (await sysDb().select().from(schema.tenants)).filter((t) => !t.suspendedAt);
   const out: Record<string, { reminders: number; digests: number; strava?: { synced: number; failed: number } }> = {};
   for (const t of tenants) {
     const tz = tenantSettings(t).defaultTimezone;

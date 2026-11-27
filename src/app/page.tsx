@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/session";
 import { communitiesForUser } from "@/lib/system/tenants";
 import { signOutAction } from "@/app/actions/auth";
+import { isPlatformOperator } from "@/lib/platform-operator";
 import { Group, Row } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,7 @@ export default async function RootPage() {
       ) : (
         <p className="muted mt-2">You&apos;re signed in, but you aren&apos;t an active member of any community. Ask a member to sponsor you, or check your invitation email.</p>
       )}
+      {isPlatformOperator(user.email) ? <Group id="platform"><Row href="/platform" title="Platform" sub="Create and manage communities" /></Group> : null}
       <form action={signOutAction} className="mt-8"><button className="btn btn-tinted btn-block">Sign out</button></form>
     </main>
   );

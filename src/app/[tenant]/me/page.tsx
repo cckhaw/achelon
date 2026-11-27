@@ -5,6 +5,7 @@ import { ownProfile } from "@/lib/services/profiles";
 import { PageHeader } from "@/components/ui/NavBar";
 import { Avatar, Badge, Group, Row } from "@/components/ui";
 import { signOutAction } from "@/app/actions/auth";
+import { isPlatformOperator } from "@/lib/platform-operator";
 import { t, type MessageKey } from "@/lib/i18n";
 
 export const metadata: Metadata = { title: "Me" };
@@ -40,6 +41,7 @@ export default async function MePage({ params }: { params: Promise<{ tenant: str
           {ctx.can("admin.access") ? <Row href={`${base}/admin`} title="Admin" sub="Members, invites, events" /> : null}
         </Group>
       ) : null}
+      {isPlatformOperator(ctx.user.email) ? <Group id="platform"><Row href="/platform" title="Platform" sub="Create and manage communities" /></Group> : null}
       <form action={signOutAction} className="mt-8"><button className="btn btn-tinted btn-block">Sign out</button></form>
     </>
   );

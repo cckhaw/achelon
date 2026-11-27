@@ -7,7 +7,8 @@ export type AuditAction =
   | "member.exported" | "member.deleted" | "member.purged"
   | "event.created" | "event.updated" | "event.published" | "event.cancelled" | "event.attendee_changed" | "event.exported"
   | "announcement.sent" | "application.submitted" | "application.approved" | "application.declined"
-  | "settings.updated" | "import.applied";
+  | "settings.updated" | "import.applied"
+  | "community.created" | "community.suspended" | "community.reactivated" | "community.owner_added";
 
 /** Ids only: no names or emails in metadata, so a purge never leaves personal data behind in history (D-24). */
 export async function audit(

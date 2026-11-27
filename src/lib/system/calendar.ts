@@ -11,7 +11,7 @@ export async function resolveCalendarToken(raw: string) {
     .innerJoin(schema.memberships, eq(schema.memberships.id, schema.calendarTokens.membershipId))
     .innerJoin(schema.tenants, eq(schema.tenants.id, schema.memberships.tenantId))
     .innerJoin(schema.users, eq(schema.users.id, schema.memberships.userId))
-    .where(and(eq(schema.calendarTokens.tokenHash, sha256Hex(raw)), isNull(schema.calendarTokens.revokedAt), eq(schema.memberships.status, "active")))
+    .where(and(eq(schema.calendarTokens.tokenHash, sha256Hex(raw)), isNull(schema.calendarTokens.revokedAt), eq(schema.memberships.status, "active"), isNull(schema.tenants.suspendedAt)))
     .limit(1);
   if (!r || r.deletedAt) return null;
   return r;

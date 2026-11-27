@@ -56,10 +56,16 @@ Add one record:
 ### 6. Deploy
 Every merge to `main` runs *Deploy production* (or run it manually): lint + typecheck + tests → **migrate the database** → `vercel deploy --prod` → wait until READY → **delete every earlier deployment** → in parallel, health check and the **end-to-end happy path against https://achelon.khaw.cc**.
 
+### 6b. Platform operator (who may create communities)
+In Vercel → Environment Variables (Production) add `PLATFORM_ADMIN_EMAILS` = a comma-separated list of the email addresses that are platform operators (for you: the address you sign in with). Redeploy. Those people see **Me → Platform** and can open `https://achelon.khaw.cc/platform`. There is no other way to become an operator: no sign-up, no database flag. Operators manage communities (create, add owners, suspend); they do **not** see any community's members, events or data unless they are also a member of it.
+
 ### 7. Create EEN and its owner
 GitHub → Actions → **Bootstrap community** → Run workflow: slug `een`, name `Executive Endurance Network`, your email. Then open https://achelon.khaw.cc/login, enter that email, and follow the link. Then follow `docs/ADMIN.md` ("First day"): settings → import the CRM CSV → send invitations.
 
 ## Day-two operations
+
+### Passwords and sign-in
+Passwords are stored only as scrypt hashes (never readable by tenant code, never exported). To help someone who is locked out or has forgotten their password, tell them to use **Forgot password?** on the login page. To sign everyone out: `DELETE FROM sessions;` as owner. Platform operators can sign in even if they belong to no community.
 
 ### Rotate secrets
 - **`APP_SECRET`**: changes the key for rate-limit buckets, Strava token encryption and OAuth state. Rotating it invalidates stored Strava tokens (members reconnect) and nothing else. Update in Vercel, redeploy.
@@ -75,7 +81,7 @@ Neon keeps point-in-time history (restore to any moment in the retention window 
 `GET /api/health` returns `{ok, checks:{db, rls}}` without secrets; point an uptime monitor at it. The daily job (Vercel Cron 05:10 UTC, `/api/cron/daily`) sends reminders, the Monday digest, syncs Strava, purges departed members after 30 days and flushes email. Its response lists what it did; failures are logged in Vercel.
 
 ### Add a second community
-Run **Bootstrap community** with a new slug, name and owner email. That is all: every table is tenant-scoped (row-level security), branding/time zone/event types are per community under Admin → Settings, and the same person can belong to several communities with one login (a picker appears at `/`). To test isolation yourself: `npm test` includes `tests/isolation.test.ts`, which proves tenant A cannot read or write tenant B across every tenant table.
+Sign in as a platform operator → **Me → Platform → New community** (name, URL name, first owner's email, time zone). The owner is emailed a link to set a password and sign in. (The **Bootstrap community** GitHub workflow still works for the very first community or if the portal is unavailable.) Suspending a community closes it for everyone until you reactivate it. That is all: every table is tenant-scoped (row-level security), branding/time zone/event types are per community under Admin → Settings, and the same person can belong to several communities with one login (a picker appears at `/`). To test isolation yourself: `npm test` includes `tests/isolation.test.ts`, which proves tenant A cannot read or write tenant B across every tenant table.
 
 ### Enable Strava later
 Create a Strava API application (callback domain `achelon.khaw.cc`; callback URL `https://achelon.khaw.cc/api/strava/callback`). Set `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` and `STRAVA_MODE=live` in Vercel, redeploy. Members then see *Settings → Strava*. Scopes requested: `read,activity:read` only. Strava's own approval limits new apps to a small number of athletes until it is reviewed; request a limit increase from Strava before inviting everyone to connect.

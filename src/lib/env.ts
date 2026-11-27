@@ -11,6 +11,8 @@ const schema = z.object({
   CRON_SECRET: z.string().min(8).optional(),
   RESEND_API_KEY: z.string().optional(),
   MAIL_FROM: z.string().default("Achelon <noreply@khaw.cc>"),
+  /** Comma-separated emails of platform operators (may create and suspend communities at /platform). Empty = nobody. */
+  PLATFORM_ADMIN_EMAILS: z.string().optional(),
   STRAVA_MODE: z.enum(["off", "mock", "live"]).default("off"),
   STRAVA_CLIENT_ID: z.string().optional(),
   STRAVA_CLIENT_SECRET: z.string().optional(),

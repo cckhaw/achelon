@@ -8,6 +8,7 @@ import { magicLinkMail, passwordResetMail } from "@/lib/mail/templates";
 import { clearLimit, hit, isLimited, RULES } from "@/lib/rate-limit";
 import { dummyHash, hashPassword, verifyPassword } from "@/lib/password";
 import { passwordProblem } from "@/lib/password-policy";
+import { isPlatformOperator } from "@/lib/platform-operator";
 
 export const LOGIN_TOKEN_TTL_MIN = 15;
 export const SESSION_TTL_DAYS = 30;
@@ -27,7 +28,7 @@ export async function requestMagicLink(email: string, ip: string, purpose: "logi
         .select({ id: schema.users.id })
         .from(schema.users)
         .where(and(eq(schema.users.email, email), isNull(schema.users.deletedAt),
-          sql`EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = ${schema.users.id} AND m.status IN ('active','invited'))`))
+          isPlatformOperator(email) ? undefined : sql`EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = ${schema.users.id} AND m.status IN ('active','invited'))`))
         .limit(1);
       const token = randomToken();
       if (row) {
@@ -130,7 +131,7 @@ export async function loginWithPassword(email: string, password: string, ip: str
   const db = sysDb();
   const [u] = await db.select({ id: schema.users.id, hash: schema.users.passwordHash }).from(schema.users)
     .where(and(eq(schema.users.email, email), isNull(schema.users.deletedAt),
-      sql`EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = ${schema.users.id} AND m.status = 'active')`)).limit(1);
+      isPlatformOperator(email) ? undefined : sql`EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = ${schema.users.id} AND m.status = 'active')`)).limit(1);
   const ok = await verifyPassword(password.slice(0, 200), u?.hash ?? (await dummyHash()));
   if (!u?.hash || !ok) {
     await hit("password-fail", email, RULES.passwordFail); // only failures count against the account

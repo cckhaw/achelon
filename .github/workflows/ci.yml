@@ -45,6 +45,7 @@ jobs:
           DATABASE_URL_OWNER: postgresql://achelon:achelon@localhost:5432/achelon_test
           APP_SECRET: ci-placeholder-secret-at-least-32-characters-long
           APP_URL: http://localhost:3000
+          PLATFORM_ADMIN_EMAILS: platform-operator@e2e.invalid
         run: npm run build
       - name: End-to-end (iPhone + desktop viewports)
         env:
@@ -52,6 +53,7 @@ jobs:
           DATABASE_URL_OWNER: postgresql://achelon:achelon@localhost:5432/achelon_test
           APP_SECRET: ci-placeholder-secret-at-least-32-characters-long
           APP_URL: http://localhost:3000
+          PLATFORM_ADMIN_EMAILS: platform-operator@e2e.invalid
           STRAVA_MODE: mock
         run: |
           npx playwright install --with-deps chromium

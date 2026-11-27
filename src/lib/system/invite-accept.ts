@@ -27,7 +27,7 @@ export async function viewInvite(raw: string): Promise<InviteView | null> {
     .innerJoin(schema.tenants, eq(schema.tenants.id, schema.invites.tenantId))
     .where(eq(schema.invites.tokenHash, sha256Hex(raw)))
     .limit(1);
-  if (!r || r.inv.usedAt || r.inv.revokedAt || r.inv.expiresAt.getTime() < Date.now()) return null;
+  if (!r || r.t.suspendedAt || r.inv.usedAt || r.inv.revokedAt || r.inv.expiresAt.getTime() < Date.now()) return null;
   let inviter: string | null = null;
   const by = r.inv.sponsorMembershipId ?? r.inv.createdByMembershipId;
   if (by) {
@@ -60,7 +60,7 @@ export async function acceptInvite(
       .where(eq(schema.invites.tokenHash, sha256Hex(raw)))
       .for("update", { of: schema.invites })
       .limit(1);
-    if (!row || row.inv.usedAt || row.inv.revokedAt || row.inv.expiresAt.getTime() < Date.now()) return null;
+    if (!row || row.t.suspendedAt || row.inv.usedAt || row.inv.revokedAt || row.inv.expiresAt.getTime() < Date.now()) return null;
     const { inv, t } = row;
     const bound = Boolean(inv.email);
     const email = (inv.email ?? input.email).toLowerCase();

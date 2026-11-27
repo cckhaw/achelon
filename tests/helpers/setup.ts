@@ -8,3 +8,4 @@ delete process.env.RESEND_API_KEY;
 process.env.CRON_SECRET = "test-cron-secret-123";
 process.env.STRAVA_CLIENT_ID = "test-client-id";
 process.env.STRAVA_CLIENT_SECRET = "test-client-secret";
+process.env.PLATFORM_ADMIN_EMAILS = "operator@example.test, Other.Op@Example.test";
