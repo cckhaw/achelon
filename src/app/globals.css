@@ -167,7 +167,9 @@ img { max-width: 100%; }
   background: transparent; border-bottom: 0.5px solid transparent; transition: background 0.2s, border-color 0.2s;
 }
 .navbar[data-scrolled="true"] { background: var(--mat); border-bottom-color: var(--mat-edge); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); }
-.navbar-title { font-weight: 600; opacity: 0; transition: opacity 0.2s; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.navbar-actions { display: flex; align-items: center; gap: 0.25rem; margin-left: auto; flex: none; max-width: 100%; }
+.navbar-actions .btn { white-space: nowrap; }
+.navbar-title { flex: 1 1 0; font-weight: 600; opacity: 0; transition: opacity 0.2s; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .navbar[data-scrolled="true"] .navbar-title { opacity: 1; }
 .large-title-wrap { padding: 0.25rem 0 1rem; }
 
@@ -178,19 +180,20 @@ img { max-width: 100%; }
 .group-title { margin: 1.5rem 0.25rem 0.5rem; }
 .group-foot { margin: 0.5rem 0.25rem 0; }
 .row {
-  display: flex; align-items: center; gap: 0.75rem; min-height: 2.75rem; padding: 0.6rem 1rem; color: var(--fg); text-decoration: none; width: 100%;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.75rem; min-height: 2.75rem; padding: 0.6rem 1rem; color: var(--fg); text-decoration: none; width: 100%;
   background: transparent; border: 0; text-align: left; font: inherit;
 }
 a.row:active, button.row:active { background: var(--surface-2); }
-.row-main { flex: 1; min-width: 0; }
-.row-title { font-weight: 500; overflow-wrap: anywhere; }
-.row-sub { color: var(--muted); font-size: 0.875rem; overflow-wrap: anywhere; }
-.row-value { color: var(--muted); text-align: right; }
+/* At large text sizes a row wraps its value onto its own line instead of crushing the label (Dynamic Type 200%). */
+.row-main { flex: 1 1 7rem; min-width: 0; }
+.row-title { font-weight: 500; overflow-wrap: break-word; }
+.row-sub { color: var(--muted); font-size: 0.875rem; overflow-wrap: break-word; }
+.row-value { color: var(--muted); text-align: right; flex: 0 1 auto; max-width: 100%; margin-left: auto; overflow-wrap: break-word; }
 .disclosure { width: 1rem; height: 1rem; color: var(--muted); opacity: 0.7; flex: none; }
 
 /* ───────── Controls ───────── */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.75rem; padding: 0.5rem 1.25rem;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.75rem; min-width: 2.75rem; padding: 0.5rem 1.25rem;
   border-radius: 0.75rem; border: 0; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
   background: var(--tint); color: var(--on-tint); transition: opacity 0.12s, transform 0.12s;
 }
@@ -308,3 +311,8 @@ dialog.sheet::backdrop { background: rgb(0 0 0 / 0.4); }
 .cal-dots { display: flex; gap: 2px; height: 6px; }
 .cal-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--tint); display: block; }
 .cal-dots i[data-race="1"] { background: var(--warn); border-radius: 1px; }
+
+/* Navigation progress: fixed, so it cannot cause layout shift. */
+.nav-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 60; background: var(--tint); transform-origin: left; transform: scaleX(0); opacity: 0; pointer-events: none; }
+.nav-progress[data-active="true"] { opacity: 1; animation: nav-grow 8s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
+@keyframes nav-grow { from { transform: scaleX(0.05); } to { transform: scaleX(0.9); } }

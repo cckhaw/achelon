@@ -36,7 +36,8 @@ export default async function SettingsPage({ params, searchParams }: { params: P
         <Row title="Engagement summary" value="Admins only" />
       </Group>
 
-      <Group title="Your data" id="data" footer="We keep the minimum needed to run the community. See what is collected and for how long in the privacy notes from your admins.">
+      <Group title="Your data" id="data" footer="We keep the minimum needed to run the community.">
+        <Row href={`/${ctx.tenant.slug}/privacy`} title="Privacy" sub="What we keep, who sees it, for how long" />
         <a className="row" href="/api/export" download>
           <span className="row-main"><span className="row-title block">Export my data</span><span className="row-sub block">A JSON file with everything we hold about you.</span></span>
         </a>

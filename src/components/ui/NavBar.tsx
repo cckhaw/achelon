@@ -21,7 +21,7 @@ export function PageHeader({ title, action, subtitle, back }: { title: string; a
       <header className="navbar" data-scrolled={scrolled}>
         {back ? <Link href={back.href} className="back-link"><Icon name="chevron" aria-hidden="true" /><span>{back.label}</span></Link> : null}
         <span className="navbar-title" aria-hidden="true">{title}</span>
-        <div className="flex items-center gap-1 ml-auto">{action}</div>
+        <div className="navbar-actions">{action}</div>
       </header>
       <div className="large-title-wrap">
         <h1 className="t-large" id="page-title" tabIndex={-1}>{title}</h1>

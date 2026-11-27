@@ -79,3 +79,45 @@ Axe sweep extended to announcements, nominate, races, admin announcements/applic
 | 19 | Med | The leaderboard opt-in must be informed and reversible | Privacy transparency; no dark patterns | Consent switch shown *before* connecting, with plain-language effect; same switch afterwards; turning it off removes results at once |
 
 Passed: destructive Disconnect is separated and confirmed; leaderboard rank is a number, not colour; the feature is invisible (not a disabled button) when off; demo mode is labelled as such; all Strava errors give a plain next step (connect again / allow activity access).
+
+## Final audit (whole app) — Phase 5
+
+Run with the HIG skill on the finished app (iOS home-screen PWA first; iPadOS and desktop second), backed by executable evidence that now lives in the test suite (`e2e/visual.spec.ts`, `e2e/hig.spec.ts`, `e2e/foundations.spec.ts`) and in Lighthouse runs against a production build.
+
+> Per Apple's Human Interface Guidelines. Audit by the HIG Compliance Auditor (Omraj Kumar, omrajguru.com/linktree; portfolio https://om.bearblog.dev/projects). Reference material sourced from Apple's Human Interface Guidelines.
+
+### Executive summary
+- Findings in the final pass: **5** (High 0, Medium 4, Low 1), **all fixed**. Cumulative across the project: 24 found, 24 fixed, 3 justified non-issues (below).
+- Platform status: **iOS PWA pass · iPadOS pass · desktop pass**.
+
+| # | Sev | Finding (found by) | HIG reference | Fix |
+|---|---|---|---|---|
+| 20 | Med | At 200% text, a row's label was crushed to one letter per line (event "When"), found by looking at screenshots, not by assertions | Dynamic Type to 200% with no truncation or overlap | Rows wrap their value onto its own line; `overflow-wrap: break-word`; new assertion for crushed labels |
+| 21 | Med | At 200%, navigation-bar actions ("Add race") were squeezed by the hidden compact title | Same | Action area never shrinks; title takes the leftover space |
+| 22 | Med | Calendar month arrows were 34pt wide | Hit targets ≥ 44×44pt | `.btn` has `min-width: 2.75rem`; executable 44pt test on 11 phone screens |
+| 23 | Med | Loading skeletons caused layout shift (CLS 0.068) | Stability; Lighthouse CLS | Skeleton screens removed; fixed-position navigation progress bar and pending submit buttons instead (CLS 0 on all screens) |
+| 24 | Low | No in-app privacy notice | Privacy transparency | Member-only Privacy screen, linked from Settings |
+
+### Evidence
+| Area | Result |
+|---|---|
+| axe-core (WCAG 2.0/2.1 A + AA), serious/critical | **0** on 18 screens × iPhone and desktop, light, **dark** and **200% text** |
+| Dark Mode | semantic tokens; contrast checked by axe on 14 screens; PNGs saved per run |
+| Large text 200% | no horizontal overflow, no clipped or crushed labels, content clear of the tab bar on 14 screens |
+| Touch targets | every button/link/field ≥ 44×44 on 11 phone screens; switches and chips sized by their whole row/pill |
+| Reduce Motion / Increase Contrast / forced colours | animation and transitions removed; `prefers-contrast: more` darkens text and borders; controls stay visible in forced colours |
+| Keyboard | skip link, sheets open/close from keyboard, Esc closes, visible 3px focus ring |
+| PWA contract | `display: standalone`, start/scope `/`, 192/512/maskable PNG icons, 180px apple-touch-icon, light/dark `theme-color`, `apple-mobile-web-app-capable`, `viewport-fit=cover`, **zoom not disabled** |
+| Lighthouse mobile (production build) | performance **94–99**, accessibility **100**, best-practices **100**, CLS **0**, LCP 1.6–2.6 s, TBT 90–220 ms on login, home, events, directory, calendar, me, admin |
+
+### Justified, not fixed
+1. **No per-device splash images** (`apple-touch-startup-image`): iOS generates the launch screen from the manifest background colour and icon; ~20 image sizes would be high-maintenance for no functional gain.
+2. **No service worker / offline mode**: authenticated member data is deliberately never cached on the device (D-33). Installation on iOS does not need one.
+3. **Haptics**: not available to web apps; none are faked.
+
+### Accessibility audit
+- **VoiceOver**: landmarks (`nav`, `main`), skip link, labelled controls, `aria-current` on navigation, `aria-pressed` on RSVP choices, `role=status/alert` for form feedback, decorative icons `aria-hidden`, calendar days read in full ("Monday 30 November, 2 items"). Not tested with a real screen reader; covered by axe and semantic review. Recommend a 15-minute VoiceOver pass on a device before inviting members.
+- **Dynamic Type**: `font: -apple-system-body` on iOS, all sizes in `rem`; verified to 200%.
+- **Contrast**: AA everywhere (tint on white 6.3:1, dark tint 9.9:1); Increase Contrast supported.
+- **Motor**: ≥ 44pt targets, no gestures without button alternatives (pull-to-refresh is additive), no timed input.
+- **Motion**: all animation neutralised under Reduce Motion.
