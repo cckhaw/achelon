@@ -1,7 +1,9 @@
 # Running EEN day to day
 
 ## Signing in
-Members sign in at `/login` with **email and password**. They can instead ask for a one-time **email link** (valid 15 minutes) or use **Forgot password?**, which emails a link that signs them in and asks for a new password. New members choose a password when they accept an email invitation; people who join via a shareable link confirm their email first and are then offered the chance to set one (Home shows a "Set a password" prompt, and Me → Password changes it any time). Passwords need 10+ characters. After 8 wrong guesses for one address the password route pauses for 15 minutes (the email link still works), and changing a password signs out every other device.
+Members sign in at `/login` with **email and password**. There is no email-link sign-in: **Forgot password?** emails a single-use link (15 minutes) that signs them in and asks for a new password, which is also how a member who has no password yet sets one. New members choose a password when they accept an email invitation; people who join via a shareable link confirm their email first and are then offered the chance to set one (Home shows a "Set a password" prompt, and Me → Password changes it any time). Passwords need 10+ characters. After 8 wrong guesses for one address the password route pauses for 15 minutes (Forgot password still works), and changing a password signs out every other device.
+
+**Inviting people to an event:** open the event under Admin → Events. "Invite people" shows the event link (for members who are already signed in) and "Invite someone by email", which sends an invitation that adds the person to that event when accepted (they join as a guest by default).
 
 ## Roles
 | Role | Can |
