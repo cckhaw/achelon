@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: "Achelon", statusBarStyle: "default" },
   other: { "apple-mobile-web-app-capable": "yes" },
   formatDetection: { telephone: false, email: false, address: false },
-  icons: { icon: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }, { url: "/icon.svg", type: "image/svg+xml" }], apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }] },
+  icons: { icon: [{ url: "/favicon.ico", sizes: "48x48" }, { url: "/icon-192.png", sizes: "192x192", type: "image/png" }, { url: "/icon.svg", type: "image/svg+xml" }], apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }] },
 };
 
 // viewport-fit=cover lets us use env(safe-area-inset-*); zoom stays enabled (accessibility).
