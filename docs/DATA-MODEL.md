@@ -11,7 +11,7 @@ Source of truth: `src/db/schema.ts` (Drizzle) + `drizzle/*.sql`. Every tenant-ow
 | `sessions` | token SHA-256, expiry. No app-role grant. |
 | `login_tokens` | single-use magic-link tokens (SHA-256), 15 min. No app-role grant. |
 | `rate_limits` | keyed (HMAC) buckets. No app-role grant. |
-| `email_outbox` | transactional outbox with unique `dedupe_key`; bodies of delivered essential mail are scrubbed. No app-role grant. |
+| `email_outbox` | transactional outbox with unique `dedupe_key`; `claimed_at` lease prevents double delivery; bodies of delivered essential mail are scrubbed. No app-role grant. |
 
 ## Tenant-owned (RLS)
 
@@ -30,7 +30,7 @@ Source of truth: `src/db/schema.ts` (Drizzle) + `drizzle/*.sql`. Every tenant-ow
 | `calendar_tokens` | one secret iCal URL per member (SHA-256), revocable. |
 | `notification_preferences` | announcements, reminders, waitlist, digest. |
 | `audit_log` | action, target, metadata (ids only). `actor_membership_id` has no FK so purging a member never rewrites history. |
-| `strava_connections` | AES-256-GCM encrypted tokens, scope. |
+| `strava_connections` | AES-256-GCM encrypted tokens, scope, `share_results` (leaderboard consent), `derived_level` (visible to the member only). |
 | `event_results` | Strava-derived leaderboard rows. |
 
 ## Differences from the brief (and why)
