@@ -93,3 +93,28 @@ export async function createPastRide(run: Run, memberEmail: string): Promise<str
     await p.end();
   }
 }
+
+/** A platform operator (email must match PLATFORM_ADMIN_EMAILS on the server). Also a member of the run's community so it can sign in. */
+export const OPERATOR_EMAIL = "platform-operator@e2e.invalid";
+export async function createOperator(run: Run): Promise<string> {
+  const p = pool();
+  try {
+    await p.query("INSERT INTO users (email) VALUES ($1) ON CONFLICT DO NOTHING", [OPERATOR_EMAIL]);
+    const u = await p.query("SELECT id FROM users WHERE email = $1", [OPERATOR_EMAIL]);
+    const m = await p.query("INSERT INTO memberships (tenant_id, user_id, role, status, joined_at) VALUES ($1,$2,'member','active', now()) RETURNING id", [run.tenantId, u.rows[0].id]);
+    await p.query("INSERT INTO member_profiles (membership_id, tenant_id, display_name) VALUES ($1,$2,'Platform Operator')", [m.rows[0].id, run.tenantId]);
+    return OPERATOR_EMAIL;
+  } finally {
+    await p.end();
+  }
+}
+
+export async function removeCommunity(slugLike: string) {
+  const p = pool();
+  try {
+    await p.query("DELETE FROM users WHERE email IN (SELECT u.email FROM users u JOIN memberships m ON m.user_id = u.id JOIN tenants t ON t.id = m.tenant_id WHERE t.slug LIKE $1 AND u.email LIKE '%@e2e.invalid' AND u.email <> $2)", [slugLike, OPERATOR_EMAIL]);
+    await p.query("DELETE FROM tenants WHERE slug LIKE $1", [slugLike]);
+  } finally {
+    await p.end();
+  }
+}

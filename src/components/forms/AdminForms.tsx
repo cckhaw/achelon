@@ -19,7 +19,7 @@ export function CreateInviteForm({ slug, roles, sponsors }: { slug: string; role
           <CopyField value={state.data.url} />
         </div>
       ) : null}
-      <form action={action} className="grid gap-4" noValidate key={state?.data?.url ?? "new"}>
+      <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-4" noValidate key={state?.data?.url ?? "new"}>
         <Field label="Email (optional)" name="email" error={errors.email} hint="With an email, we send the invitation and only that address can use it. Leave empty to get a single-use link to share yourself.">
           <input id="email" name="email" type="email" inputMode="email" autoCapitalize="none" autoComplete="off" className="input" {...describedBy("email", errors.email, true)} />
         </Field>
@@ -53,9 +53,9 @@ export function InviteRowActions({ slug, id, status, hasEmail }: { slug: string;
       <FormMessage state={state} />
       {/* Destructive action is spatially separated from the primary one (HIG) and asks first. */}
       <div className="flex flex-wrap items-center justify-between" style={{ gap: "1.5rem" }}>
-        <form action={action}><SubmitButton className="btn btn-tinted btn-sm" pendingLabel="Working…">{hasEmail ? "Resend email" : "New link"}</SubmitButton></form>
+        <form onReset={(e) => e.preventDefault()} action={action}><SubmitButton className="btn btn-tinted btn-sm" pendingLabel="Working…">{hasEmail ? "Resend email" : "New link"}</SubmitButton></form>
         {status === "pending" ? (
-          <form action={async () => { await revokeInviteAction(slug, id); }} onSubmit={(e) => { if (!window.confirm("Revoke this invitation? The link stops working immediately.")) e.preventDefault(); }}><button className="btn btn-danger btn-sm">Revoke</button></form>
+          <form onReset={(e) => e.preventDefault()} action={async () => { await revokeInviteAction(slug, id); }} onSubmit={(e) => { if (!window.confirm("Revoke this invitation? The link stops working immediately.")) e.preventDefault(); }}><button className="btn btn-danger btn-sm">Revoke</button></form>
         ) : null}
       </div>
     </div>
@@ -65,7 +65,7 @@ export function InviteRowActions({ slug, id, status, hasEmail }: { slug: string;
 export function EmailAllButton({ slug }: { slug: string }) {
   const [state, action] = useActionState(emailAllUnsentAction.bind(null, slug), undefined);
   return (
-    <form action={action} className="grid gap-2">
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-2">
       <FormMessage state={state} />
       <SubmitButton className="btn btn-tinted" pendingLabel="Sending…">Email all unsent invitations</SubmitButton>
     </form>
@@ -76,7 +76,7 @@ export function ChangeRoleForm({ slug, id, current, allowed }: { slug: string; i
   const [state, action] = useActionState(changeRoleAction.bind(null, slug, id), undefined);
   const options = allowed.includes(current) ? allowed : [current, ...allowed];
   return (
-    <form action={action} className="grid gap-3">
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-3">
       <Field label="Role" name="role">
         <select id="role" name="role" className="select" defaultValue={current}>
           {options.map((r) => <option key={r} value={r} disabled={!allowed.includes(r)}>{t(`role.${r}` as MessageKey)}</option>)}
@@ -91,7 +91,7 @@ export function ChangeRoleForm({ slug, id, current, allowed }: { slug: string; i
 export function StatusButton({ slug, id, status, label, tone = "tinted", confirmText }: { slug: string; id: string; status: "active" | "paused" | "left"; label: string; tone?: "tinted" | "danger"; confirmText?: string }) {
   const [state, action] = useActionState(setStatusAction.bind(null, slug, id, status), undefined);
   return (
-    <form action={action} onSubmit={(e) => { if (confirmText && !window.confirm(confirmText)) e.preventDefault(); }} className="grid gap-2">
+    <form onReset={(e) => e.preventDefault()} action={action} onSubmit={(e) => { if (confirmText && !window.confirm(confirmText)) e.preventDefault(); }} className="grid gap-2">
       <FormMessage state={state} />
       <SubmitButton className={`btn btn-${tone}`} pendingLabel="Working…">{label}</SubmitButton>
     </form>
@@ -105,7 +105,7 @@ export function ImportForm({ slug }: { slug: string }) {
     <div className="grid gap-4">
       {state?.ok && state.message ? <p className="form-ok" role="status">{state.message}</p> : null}
       {!p ? (
-        <form action={action} className="grid gap-4">
+        <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-4">
           <input type="hidden" name="mode" value="preview" />
           <Field label="CSV file" name="file" hint={<>Export from your CRM or Google Sheet. We look for columns named Email, Name, Company, Job Title, City, Country and Member Type or Founding. <a href={`data:text/csv;charset=utf-8,${encodeURIComponent(IMPORT_TEMPLATE)}`} download="achelon-import-template.csv">Download a template</a>.</>}>
             <input id="file" name="file" type="file" accept=".csv,text/csv" className="input" required />
@@ -114,7 +114,7 @@ export function ImportForm({ slug }: { slug: string }) {
           <SubmitButton className="btn" pendingLabel="Checking…">Preview import</SubmitButton>
         </form>
       ) : (
-        <form action={action} className="grid gap-4">
+        <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-4">
           <input type="hidden" name="mode" value="apply" />
           <input type="hidden" name="csv" value={state!.csv} />
           <p className="t-headline">Preview</p>
@@ -146,7 +146,7 @@ export function SettingsForm({ slug, values }: { slug: string; values: { name: s
   const [state, action] = useActionState(saveSettingsAction.bind(null, slug), undefined);
   const e = state?.fieldErrors ?? {};
   return (
-    <form action={action} className="grid gap-5" noValidate>
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-5" noValidate>
       <Field label="Community name" name="name" error={e.name}>
         <input id="name" name="name" className="input" required maxLength={80} defaultValue={values.name} {...describedBy("name", e.name)} />
       </Field>

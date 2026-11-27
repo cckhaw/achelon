@@ -22,11 +22,11 @@ export function CalendarSubscribe({ slug, status }: { slug: string; status: "non
       ) : (
         <>
           <p className="muted t-sub">{status === "active" ? "Your private link is active. For your security it can't be shown again; make a new one to see it (the old link stops working)." : status === "revoked" ? "Your link is switched off." : "You don't have a link yet."}</p>
-          <form action={make}><FormMessage state={made} /><SubmitButton className="btn btn-block" pendingLabel="Creating…">{status === "active" ? "Make a new private link" : "Create my private link"}</SubmitButton></form>
+          <form onReset={(e) => e.preventDefault()} action={make}><FormMessage state={made} /><SubmitButton className="btn btn-block" pendingLabel="Creating…">{status === "active" ? "Make a new private link" : "Create my private link"}</SubmitButton></form>
         </>
       )}
       {status === "active" || url ? (
-        <form action={revoke} className="grid gap-2"><FormMessage state={gone} /><SubmitButton className="btn btn-danger" pendingLabel="Switching off…">Switch the link off</SubmitButton></form>
+        <form onReset={(e) => e.preventDefault()} action={revoke} className="grid gap-2"><FormMessage state={gone} /><SubmitButton className="btn btn-danger" pendingLabel="Switching off…">Switch the link off</SubmitButton></form>
       ) : null}
     </div>
   );

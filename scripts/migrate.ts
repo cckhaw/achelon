@@ -45,7 +45,8 @@ try {
   ];
   await pool.query(`GRANT SELECT, INSERT, UPDATE, DELETE ON ${tenant.map((t) => `"${t}"`).join(", ")} TO ${role}`);
   await pool.query(`GRANT SELECT, UPDATE ON tenants TO ${role}`);
-  await pool.query(`GRANT SELECT ON users TO ${role}`); // RLS limits this to members of the current tenant
+  // Column-level: tenant code may read who someone is, never their password hash. RLS limits rows to the current tenant.
+  await pool.query(`GRANT SELECT (id, email, created_at, last_login_at, deleted_at) ON users TO ${role}`);
   // sessions, login_tokens, rate_limits, email_outbox: system tables, intentionally NO grant to the app role.
   console.log("Grants applied.");
 } catch (e) {

@@ -41,6 +41,7 @@ test("login is neutral, member area is private, admin creates an invite that a n
   const errors2 = watchErrors(p2);
   await p2.goto(new URL(link).pathname);
   await expect(p2.getByRole("heading", { name: "Welcome" })).toBeVisible();
+  await p2.locator("#password").fill("a long e2e passphrase 2026");
   await p2.getByLabel("Name", { exact: true }).fill("Nia Newcomer");
   await p2.locator("#company").fill("Example Networks");
   await p2.locator("#city").fill("Leeds");
@@ -50,6 +51,25 @@ test("login is neutral, member area is private, admin creates an invite that a n
   await p2.getByRole("button", { name: /^Join/ }).click();
   await p2.waitForURL(new RegExp(`/${run.slug}\\?welcome=1`));
   await expect(p2.getByText(/Welcome aboard/)).toBeVisible();
+
+  // Password sign-in: wrong password gets the same vague answer; the right one gets in; the email link stays available.
+  const ctx3 = await browser.newContext({ ...(test.info().project.use as object), baseURL });
+  const p4 = await ctx3.newPage();
+  await p4.goto("/login");
+  await p4.getByLabel("Email address").fill(newbie);
+  await p4.getByLabel("Password", { exact: true }).fill("definitely not my password");
+  await p4.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(p4.getByText(/email and password don't match/)).toBeVisible();
+  await p4.getByLabel("Email address").fill("nobody-at-all@e2e.invalid");
+  await p4.getByLabel("Password", { exact: true }).fill("definitely not my password");
+  await p4.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(p4.getByText(/email and password don't match/)).toBeVisible(); // identical for an unknown address
+  await p4.getByLabel("Email address").fill(newbie);
+  await p4.getByLabel("Password", { exact: true }).fill("a long e2e passphrase 2026");
+  await p4.getByRole("button", { name: "Sign in", exact: true }).click();
+  await p4.waitForURL(new RegExp(`/${run.slug}$`));
+  await expect(p4.getByText("Sign in faster next time.")).toHaveCount(0); // they already have a password
+  await ctx3.close();
 
   // The same link can't be reused.
   const p3 = await (await browser.newContext({ ...(test.info().project.use as object), baseURL })).newPage();

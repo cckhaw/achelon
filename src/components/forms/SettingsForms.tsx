@@ -12,7 +12,7 @@ export function PreferencesForm({ slug, prefs }: { slug: string; prefs: { eventA
     { name: "waitlist", title: "Waitlist updates", sub: "When a spot opens for you.", on: prefs.waitlist },
   ];
   return (
-    <form action={action}>
+    <form onReset={(e) => e.preventDefault()} action={action}>
       <Group title="Email" id="email" footer="Sign-in links, invitations and RSVP confirmations are always sent: they are part of using Achelon.">
         {toggles.map((t) => (
           <label className="row" key={t.name}>
@@ -34,7 +34,7 @@ export function PreferencesForm({ slug, prefs }: { slug: string; prefs: { eventA
 export function DeleteAccountForm({ slug }: { slug: string }) {
   const [state, action] = useActionState(deleteAccountAction.bind(null, slug), undefined);
   return (
-    <form action={action} className="grid gap-4">
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-4">
       <p>This removes your access to every community straight away and erases your profile and sign-ups after 30 days. It can&apos;t be undone.</p>
       <Field label="Type DELETE to confirm" name="confirm" error={state?.fieldErrors?.confirm}>
         <input id="confirm" name="confirm" className="input" autoCapitalize="characters" autoComplete="off" {...describedBy("confirm", state?.fieldErrors?.confirm)} />

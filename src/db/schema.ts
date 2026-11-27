@@ -69,6 +69,8 @@ export const tenants = pgTable("tenants", {
   name: text("name").notNull(),
   createdAt: tstz("created_at").notNull().defaultNow(),
   settings: jsonb("settings").$type<TenantSettings>().notNull().default(sql`'{}'::jsonb`),
+  /** Set by a platform operator: the community is closed to everyone (404) until reactivated. */
+  suspendedAt: tstz("suspended_at"),
 });
 
 export const users = pgTable("users", {
@@ -77,6 +79,9 @@ export const users = pgTable("users", {
   createdAt: tstz("created_at").notNull().defaultNow(),
   lastLoginAt: tstz("last_login_at"),
   deletedAt: tstz("deleted_at"),
+  /** scrypt hash (`scrypt$N$r$p$salt$hash`). Null until the person sets a password. Never exported, never granted to the app role. */
+  passwordHash: text("password_hash"),
+  passwordSetAt: tstz("password_set_at"),
 });
 
 /** Login sessions. Token is random, only its SHA-256 is stored. System table: owner connection only. */
@@ -89,6 +94,8 @@ export const sessions = pgTable(
     createdAt: tstz("created_at").notNull().defaultNow(),
     expiresAt: tstz("expires_at").notNull(),
     lastSeenAt: tstz("last_seen_at").notNull().defaultNow(),
+    /** Set when the session began with an emailed link: until then a password can be (re)set without the current one. */
+    freshUntil: tstz("fresh_until"),
   },
   (t) => [index("sessions_user_idx").on(t.userId)],
 );
@@ -103,6 +110,8 @@ export const loginTokens = pgTable(
     createdAt: tstz("created_at").notNull().defaultNow(),
     expiresAt: tstz("expires_at").notNull(),
     usedAt: tstz("used_at"),
+    /** "login" = plain sign-in link; "reset" = the person asked to set or reset their password. */
+    purpose: text("purpose").notNull().default("login"),
   },
   (t) => [index("login_tokens_user_idx").on(t.userId)],
 );

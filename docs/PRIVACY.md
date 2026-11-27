@@ -6,6 +6,7 @@ Principle: collect the minimum; the member decides who sees what.
 | Data | Why | Who can see it |
 |---|---|---|
 | Email address | Sign-in, invitations, event email | The member; owners and admins |
+| Password | Sign-in | **Nobody.** Stored only as a salted scrypt hash that is unreadable by admins, platform operators and application code; never exported; erased with the account |
 | Name | Identify members | All active members (always) |
 | Job title, company, city, country, bio, sports, level, pace, ride speed, "open to", photo link, Strava badge | Directory and matching training partners | **Per field, chosen by the member**: only me / admins / all members. Defaults are conservative: city, sports, level and open-to are shared with members; the rest with admins only |
 | Time zone | Show event times in local time | The member and admins |

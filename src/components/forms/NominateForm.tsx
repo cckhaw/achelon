@@ -8,7 +8,7 @@ export function NominateForm({ slug }: { slug: string }) {
   const [state, action] = useActionState(nominateAction.bind(null, slug), undefined);
   const e = state?.fieldErrors ?? {};
   return (
-    <form action={action} className="grid gap-4" noValidate key={state?.ok ? "done" : "form"}>
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-4" noValidate key={state?.ok ? "done" : "form"}>
       {state?.ok ? <FormMessage state={state} /> : null}
       <Field label="Their name" name="name" error={e.name}><input id="name" name="name" className="input" required maxLength={80} {...describedBy("name", e.name)} /></Field>
       <Field label="Their email" name="email" error={e.email} hint="We only use it to send the invitation if an admin approves."><input id="email" name="email" type="email" inputMode="email" autoCapitalize="none" className="input" required {...describedBy("email", e.email, true)} /></Field>

@@ -32,7 +32,7 @@ export const getMemberContext = cache(async (slug: string): Promise<MemberContex
   const user = await currentUser();
   if (!user) return null;
   const tenant = await tenantBySlug(slug);
-  if (!tenant) return null;
+  if (!tenant || tenant.suspendedAt) return null; // suspended by a platform operator: closed to everyone, indistinguishable from "not found"
   const m = await membershipFor(user.id, tenant.id);
   if (!m || m.status !== "active") return null;
   // Throttled activity stamp (engagement summary): at most hourly, off the request path.

@@ -42,6 +42,7 @@ export default async function HomePage({ params, searchParams }: { params: Promi
   return (
     <>
       <PageHeader title={ctx.tenant.name} />
+      {!ctx.user.hasPassword ? <p className="card mb-4" style={{ padding: "0.9rem 1rem" }}>Sign in faster next time. <Link href="/account/password">Set a password</Link></p> : null}
       {welcome ? <p className="form-ok mb-4" role="status">Welcome aboard. Your profile is set up; you can change it any time under Me.</p> : null}
       {latest ? <Group title="From your admins" id="latest"><Row href={`${base}/announcements`} title={latest.a.subject} sub={latest.a.sentAt ? fmt.shortDate(latest.a.sentAt) : undefined} /></Group> : null}
       {mine.length ? <Group title="You're going to" id="mine">{mine.map(eventRow)}</Group> : null}

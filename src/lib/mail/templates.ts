@@ -77,3 +77,11 @@ export function announcementMail(o: { tenantName: string; subject: string; body:
     html: wrap(o.subject, o.body.split(/\n{2,}/).map(p).join(""), { label: "Open Achelon", url: o.url }, `${o.tenantName} on Achelon. Change which emails you get in Settings.`),
   };
 }
+
+export function passwordResetMail(url: string) {
+  return {
+    subject: "Set or reset your Achelon password",
+    text: `Use this link to set or reset your Achelon password. It works once and expires in 15 minutes.\n\n${url}\n\nIf you didn't ask for this, you can ignore this email: your password won't change.`,
+    html: wrap("Set your password", p("Use this link to set or reset your password. It works once and expires in 15 minutes. If you didn't ask for this, ignore this email and your password stays as it is."), { label: "Set my password", url }, "Sent because someone asked to set or reset the password for this address."),
+  };
+}

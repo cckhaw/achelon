@@ -45,6 +45,7 @@ test("invite → profile → event → RSVP → iCal", async ({ page, browser, b
   const p = await ctx2.newPage();
   const errors2 = watchErrors(p);
   await p.goto(new URL(link).pathname);
+  await p.locator("#password").fill("a long e2e passphrase 2026");
   await p.getByLabel("Name", { exact: true }).fill("Nia Newcomer");
   await p.locator("#city").fill("Leeds");
   await p.getByLabel("Cycling").check();

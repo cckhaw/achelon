@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { sysDb, schema } from "@/lib/db";
 import { DEFAULT_TENANT_SETTINGS, type TenantSettings } from "@/db/constants";
 
@@ -29,5 +29,5 @@ export async function communitiesForUser(userId: string) {
     .select({ slug: schema.tenants.slug, name: schema.tenants.name, role: schema.memberships.role, status: schema.memberships.status, membershipId: schema.memberships.id })
     .from(schema.memberships)
     .innerJoin(schema.tenants, eq(schema.tenants.id, schema.memberships.tenantId))
-    .where(and(eq(schema.memberships.userId, userId), inArray(schema.memberships.status, ["active"])));
+    .where(and(eq(schema.memberships.userId, userId), inArray(schema.memberships.status, ["active"]), isNull(schema.tenants.suspendedAt)));
 }

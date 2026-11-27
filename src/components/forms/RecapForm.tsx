@@ -8,7 +8,7 @@ export function RecapForm({ slug, eventId }: { slug: string; eventId: string }) 
   const [state, action] = useActionState(addRecapAction.bind(null, slug, eventId), undefined);
   const e = state?.fieldErrors ?? {};
   return (
-    <form action={action} className="grid gap-4" noValidate key={state?.ok ? "done" : "f"}>
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-4" noValidate key={state?.ok ? "done" : "f"}>
       {state?.ok ? <FormMessage state={state} /> : null}
       <Field label="How did it go?" name="body" error={e.body}><textarea id="body" name="body" className="textarea" required maxLength={4000} {...describedBy("body", e.body)} /></Field>
       <Field label="Photo links (optional)" name="photos" error={e.photos} hint="One https:// link per line, up to 6. Photos stay where you host them."><textarea id="photos" name="photos" className="textarea" style={{ minHeight: "4rem" }} {...describedBy("photos", e.photos, true)} /></Field>
