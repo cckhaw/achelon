@@ -58,3 +58,15 @@ Re-checked against the same HIG knowledge base, plus axe-core on 18 screens × 2
 Passed in this phase: RSVP choices are real buttons with `aria-pressed`, ≥44pt, with a check mark (not colour-only); calendar days are ≥44pt links with full spoken labels ("Monday 30 November, 2 items"), today is a filled circle and races use a square dot (shape, not just colour); dates/times use native `datetime-local` pickers and `Intl` (viewer zone first, event-local beside it); destructive actions (cancel event, remove attendee) are separated and confirmed; maps link opens Apple Maps.
 
 Still open (Phase 5): 200% text-size and dark-mode screenshot checks of the main screens; final audit of the whole app.
+
+## Phase 3 report (race board, announcements, recaps, nominations)
+
+| # | Sev | Finding | HIG / WCAG reference | Fix |
+|---|---|---|---|---|
+| 15 | Med | Confirmations after an admin action (approve/decline) disappeared when the list re-rendered | Feedback: acknowledge every action | Item moves visibly to a "Decided" group with a status badge; other forms keep inline `role=status` messages |
+| 16 | Med | Destructive "Remove race", "Decline", "Delete recap" lacked separation/confirmation | Confirm destructive actions; keep them away from primary actions | Separated with wide gaps and `confirm()` |
+| 17 | Low | Skeleton loading states announced nothing | Accessible loading feedback | `role=status` + visually hidden "Loading…" on every skeleton; per-segment `loading.tsx` |
+
+Passed: date inputs are native pickers; every sheet form validates inline with `aria-describedby`; race "I'm going too" is a ≥44pt button with visible state ("You're going" badge, not colour-only); goal time is never shown to anyone but its owner; announcement composer confirms before sending; all long text uses the safe Markdown subset (no HTML).
+
+Axe sweep extended to announcements, nominate, races, admin announcements/applications: no serious/critical findings.

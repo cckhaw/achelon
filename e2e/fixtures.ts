@@ -14,6 +14,7 @@ export interface Run {
   slug: string;
   adminEmail: string;
   memberEmail: string;
+  guestEmail: string;
   tenantId: string;
 }
 
@@ -33,13 +34,14 @@ export async function createRun(): Promise<Run> {
     const tenantId = t.rows[0].id as string;
     const adminEmail = `admin-${id}@e2e.invalid`;
     const memberEmail = `member-${id}@e2e.invalid`;
-    for (const [email, role, name] of [[adminEmail, "owner", "Erin Example"], [memberEmail, "member", "Marco Example"]] as const) {
+    const guestEmail = `guest-${id}@e2e.invalid`;
+    for (const [email, role, name] of [[adminEmail, "owner", "Erin Example"], [memberEmail, "member", "Marco Example"], [guestEmail, "guest", "Gita Example"]] as const) {
       const u = await p.query("INSERT INTO users (email) VALUES ($1) RETURNING id", [email]);
       const m = await p.query("INSERT INTO memberships (tenant_id, user_id, role, status, joined_at) VALUES ($1,$2,$3,'active', now()) RETURNING id", [tenantId, u.rows[0].id, role]);
       await p.query("INSERT INTO member_profiles (membership_id, tenant_id, display_name, city, sports) VALUES ($1,$2,$3,'London','{cycling}')", [m.rows[0].id, tenantId, name]);
       await p.query("INSERT INTO notification_preferences (membership_id, tenant_id) VALUES ($1,$2)", [m.rows[0].id, tenantId]);
     }
-    return { id, slug, adminEmail, memberEmail, tenantId };
+    return { id, slug, adminEmail, memberEmail, guestEmail, tenantId };
   } finally {
     await p.end();
   }

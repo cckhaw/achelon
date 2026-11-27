@@ -127,6 +127,8 @@ export const emailOutbox = pgTable(
     dedupeKey: text("dedupe_key").notNull().unique(),
     status: outboxStatus("status").notNull().default("pending"),
     attempts: integer("attempts").notNull().default(0),
+    /** Lease: a flusher owns the row until this is 5 minutes old (then it may be retried). Prevents double delivery. */
+    claimedAt: tstz("claimed_at"),
     createdAt: tstz("created_at").notNull().defaultNow(),
     sentAt: tstz("sent_at"),
     error: text("error"),

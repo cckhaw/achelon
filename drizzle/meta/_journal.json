@@ -22,6 +22,13 @@
       "when": 1795740953127,
       "tag": "0002_invite_prefill",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795742880511,
+      "tag": "0003_outbox_lease",
+      "breakpoints": true
     }
   ]
 }

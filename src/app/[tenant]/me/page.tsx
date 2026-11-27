@@ -34,6 +34,8 @@ export default async function MePage({ params }: { params: Promise<{ tenant: str
       {ctx.can("races.view") || ctx.can("admin.access") ? (
         <Group title="More" id="more">
           {ctx.can("races.view") ? <Row href={`${base}/races`} title="Race board" /> : null}
+          {ctx.can("sponsor.nominate") && ctx.settings.sponsorshipEnabled ? <Row href={`${base}/nominate`} title="Nominate someone" sub="Sponsor a new member" /> : null}
+          {ctx.can("directory.view") ? <Row href={`${base}/announcements`} title="Announcements" /> : null}
           {ctx.can("admin.access") ? <Row href={`${base}/admin`} title="Admin" sub="Members, invites, events" /> : null}
         </Group>
       ) : null}

@@ -52,3 +52,11 @@ Format: **D-n** decision — why. Newest at the bottom of each section.
 - **D-39 Calendar views bucket instants into the viewer's local day** (cookie zone → profile → community default), so an event at 06:00 Singapore appears on the right day for a viewer in London.
 - **D-40 Admin attendee override:** "Move to going" can exceed capacity (audited) for the cases where the organiser wants to squeeze someone in.
 - **D-41 CSV export neutralises spreadsheet formulas** (cells starting `= + - @` are prefixed), and every export is audited.
+
+## Added during Phase 3
+- **D-42 Permission guards live in segment layouts**, not only in pages: a layout runs before any `loading.tsx` boundary streams, so a refused request is a true HTTP 404 (not a 200 containing a "not found" screen). Pages still re-check their specific permission (cached per request).
+- **D-43 Outbox rows are leased.** `claimed_at` is set when a flusher takes a row; others skip it for 5 minutes. Found by a concurrency test (two overlapping flushes delivered the same mail).
+- **D-44 Goal times are private to their owner**, even when the race itself is shared with members; "I'm going too" never copies one.
+- **D-45 Nomination responses are uniform.** The sponsor sees the same confirmation whether the nominee is new, already invited or already a member; only admins see "Already a member". Rate-limited to 5/day per member.
+- **D-46 Cancellation and RSVP confirmation are essential mail** (ignore preferences): people may have booked travel. New events, reminders, waitlist and announcements respect preferences; digest members get one Monday mail instead of separate ones.
+- **D-47 Reminders**: a 36-60 h window and the `reminder_sent_at` marker make the daily job idempotent; a missed day simply skips that cohort rather than double-sending.

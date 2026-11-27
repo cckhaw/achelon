@@ -1,6 +1,5 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { after } from "next/server";
 import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { schema, withTenant } from "@/lib/db";
@@ -11,7 +10,7 @@ import { emailSchema } from "@/lib/validation";
 import { createInvite, revokeInvite, rotateInvite } from "@/lib/services/invites";
 import { changeRole, setStatus } from "@/lib/services/members";
 import { applyImport, MAX_IMPORT_BYTES, previewImport, type ImportPreview } from "@/lib/services/csv-import";
-import { enqueue, flush } from "@/lib/mail/outbox";
+import { enqueue, scheduleFlush } from "@/lib/mail/outbox";
 import { inviteMail } from "@/lib/mail/templates";
 import { env } from "@/lib/env";
 import { audit } from "@/lib/audit";
@@ -25,7 +24,7 @@ async function emailInvite(tenantId: string, tenantName: string, inviteId: strin
   const mail = inviteMail({ url: inviteUrl(token), tenantName, inviter: inviterName, note, days: 14 });
   await enqueue({ tenantId, to, ...mail, category: "essential", dedupeKey: `invite:${inviteId}:${sha256Hex(token).slice(0, 12)}` });
   await withTenant(tenantId, (tx) => tx.update(schema.invites).set({ emailedAt: new Date() }).where(eq(schema.invites.id, inviteId)));
-  after(() => flush().catch(() => undefined));
+  await scheduleFlush();
 }
 
 async function inviterName(tenantId: string, membershipId: string) {

@@ -37,13 +37,14 @@ export const getMemberContext = cache(async (slug: string): Promise<MemberContex
   if (!m || m.status !== "active") return null;
   // Throttled activity stamp (engagement summary): at most hourly, off the request path.
   if (!m.lastActiveAt || Date.now() - m.lastActiveAt.getTime() > 3_600_000) {
-    after(async () => {
+    const stamp = async () => {
       try {
         await withTenant(tenant.id, (tx) =>
           tx.update(schema.memberships).set({ lastActiveAt: new Date() })
             .where(and(eq(schema.memberships.id, m.id), or(isNull(schema.memberships.lastActiveAt), lt(schema.memberships.lastActiveAt, new Date(Date.now() - 3_600_000))))));
       } catch { /* non-critical */ }
-    });
+    };
+    try { after(stamp); } catch { /* outside a request scope (tests, scripts): skip */ }
   }
   return {
     user,

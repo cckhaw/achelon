@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, eq, lt, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, lt, sql } from "drizzle-orm";
 import { env } from "@/lib/env";
 import { sysDb, schema } from "@/lib/db";
 
@@ -58,12 +58,13 @@ export async function flush(limit = 25): Promise<{ sent: number; failed: number 
   let failed = 0;
   const claimed = await db.transaction(async (tx) => {
     const rows = await tx.execute<{ id: string }>(sql`
-      SELECT id FROM email_outbox WHERE status = 'pending' AND attempts < 5
-      ORDER BY created_at LIMIT ${limit} FOR UPDATE SKIP LOCKED`);
+      SELECT id FROM email_outbox
+       WHERE status = 'pending' AND attempts < 5 AND (claimed_at IS NULL OR claimed_at < now() - interval '5 minutes')
+       ORDER BY created_at LIMIT ${limit} FOR UPDATE SKIP LOCKED`);
     const ids = rows.rows.map((r) => r.id);
     if (!ids.length) return [];
-    await tx.execute(sql`UPDATE email_outbox SET attempts = attempts + 1 WHERE id = ANY(${ids}::uuid[])`);
-    return tx.select().from(schema.emailOutbox).where(sql`${schema.emailOutbox.id} = ANY(${ids}::uuid[])`).orderBy(asc(schema.emailOutbox.createdAt));
+    await tx.update(schema.emailOutbox).set({ attempts: sql`${schema.emailOutbox.attempts} + 1`, claimedAt: new Date() }).where(inArray(schema.emailOutbox.id, ids));
+    return tx.select().from(schema.emailOutbox).where(inArray(schema.emailOutbox.id, ids)).orderBy(asc(schema.emailOutbox.createdAt));
   });
   for (const m of claimed) {
     try {
@@ -84,4 +85,14 @@ export async function flush(limit = 25): Promise<{ sent: number; failed: number 
 /** Housekeeping: drop sent mail bodies after 30 days (no mail content kept longer than needed). */
 export async function purgeSent(days = 30) {
   await sysDb().delete(schema.emailOutbox).where(and(eq(schema.emailOutbox.status, "sent"), lt(schema.emailOutbox.sentAt, sql`now() - make_interval(days => ${days})`)));
+}
+
+/** Flush after the response is sent when in a request; otherwise (cron, tests) flush inline. */
+export async function scheduleFlush(): Promise<void> {
+  try {
+    const { after } = await import("next/server");
+    after(() => flush().catch(() => undefined));
+  } catch {
+    await flush().catch(() => undefined);
+  }
 }

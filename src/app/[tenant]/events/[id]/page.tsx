@@ -5,6 +5,11 @@ import Link from "next/link";
 import { requireMember } from "@/lib/context";
 import { withTenant } from "@/lib/db";
 import { getEvent } from "@/lib/services/events";
+import { racersForEvent } from "@/lib/services/races";
+import { listRecaps } from "@/lib/services/recaps";
+import { RecapForm } from "@/components/forms/RecapForm";
+import { SheetButton } from "@/components/ui/Sheet";
+import { deleteRecapAction } from "@/app/[tenant]/events/recap-actions";
 import { PageHeader } from "@/components/ui/NavBar";
 import { Badge, Group, Row } from "@/components/ui";
 import { MapsLink, typeLabel } from "@/components/EventBits";
@@ -21,8 +26,12 @@ export default async function EventPage({ params }: { params: Promise<{ tenant: 
   if (!z.uuid().safeParse(id).success) notFound();
   const data = await withTenant(ctx.tenant.id, (tx) => getEvent(tx, ctx.viewer, id));
   if (!data) notFound();
+  const [racers, recaps] = await withTenant(ctx.tenant.id, async (tx) => [data.event.type === "external_race" && ctx.can("races.view") ? await racersForEvent(tx, ctx.viewer, id) : [], await listRecaps(tx, id)] as const);
+  const started = data.event.startsAt <= new Date();
+  const canRecap = started && data.event.status === "published" && ctx.can("recaps.write") && (ctx.can("events.manage") || data.mine === "going");
   const { event: e, counts, attendees, mine, myWaitRank, showNames } = data;
-  const base = `/${ctx.tenant.slug}`;
+  const slug = ctx.tenant.slug;
+  const base = `/${slug}`;
   const fmt = await viewerFormat(ctx.settings.defaultTimezone);
   const when = fmt.event(e.startsAt, e.timezone);
   const full = e.capacity !== null && counts.going >= e.capacity;
@@ -65,6 +74,12 @@ export default async function EventPage({ params }: { params: Promise<{ tenant: 
 
       {e.description ? <div className="card mt-6" style={{ padding: "1rem 1.25rem" }}><Markdown source={e.description} /></div> : null}
 
+      {racers.length ? (
+        <Group title="Members racing" id="racers" footer={<Link href={`${base}/races`}>Open the race board</Link>}>
+          {racers.map((r) => <Row key={r.id} title={r.memberName} sub={r.distance ?? undefined} />)}
+        </Group>
+      ) : null}
+
       <Group title={showNames ? `Who's going (${counts.going})` : "Who's going"} id="who" footer={!showNames ? "The organiser shows attendee counts only for this event." : counts.maybe ? `${counts.maybe} more ${counts.maybe === 1 ? "is" : "are"} considering it.` : undefined}>
         {!showNames ? <Row title={`${counts.going} going`} sub={counts.waitlist ? `${counts.waitlist} on the waitlist` : undefined} /> : going.length ? going.map((a) => <Row key={a.membershipId} title={a.name} sub={a.note ?? undefined} />) : <div className="row muted">Nobody yet. Be the first.</div>}
       </Group>
@@ -72,6 +87,25 @@ export default async function EventPage({ params }: { params: Promise<{ tenant: 
         <Group title={`Waitlist (${waiting.length})`} id="wait">
           {waiting.map((a, i) => <Row key={a.membershipId} title={a.name} value={`#${i + 1}`} />)}
         </Group>
+      ) : null}
+    
+      {started && e.status === "published" ? (
+        <section aria-labelledby="recaps-h" className="mt-8">
+          <div className="flex items-center justify-between mb-2">
+            <h2 id="recaps-h" className="t-title">Recaps</h2>
+            {canRecap ? <SheetButton label="Write a recap" title="Write a recap" icon="plus" className="btn btn-tinted btn-sm"><RecapForm slug={ctx.tenant.slug} eventId={e.id} /></SheetButton> : null}
+          </div>
+          {recaps.length ? recaps.map(({ r, author }) => (
+            <article key={r.id} className="card mb-3" style={{ padding: "1rem 1.25rem" }}>
+              <p className="t-foot muted mb-2">{author ?? "A member"} · {fmt.date(r.createdAt)}</p>
+              <Markdown source={r.bodyMarkdown} />
+              {r.photoUrls.length ? <p className="mt-3 flex flex-wrap gap-x-4">{r.photoUrls.map((u, i) => <a key={u} href={u} target="_blank" rel="noopener noreferrer nofollow">Photo {i + 1}</a>)}</p> : null}
+              {(r.authorMembershipId === ctx.membership.id || ctx.can("events.manage")) ? (
+                <form action={deleteRecapAction.bind(null, slug, e.id, r.id)} className="mt-2"><button className="btn btn-plain" style={{ color: "var(--danger)" }}>Delete</button></form>
+              ) : null}
+            </article>
+          )) : <p className="muted">No recaps yet.</p>}
+        </section>
       ) : null}
     </>
   );
