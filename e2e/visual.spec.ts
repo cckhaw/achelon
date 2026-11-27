@@ -76,7 +76,7 @@ test.describe("large text (200%)", () => {
 });
 
 /** The public front door: sign-in, link confirmation, invitation. Same bar as the app: light, dark and 200% text. */
-const PUBLIC = ["/login", "/terms", "/privacy", "/login?error=link", "/login/verify?token=not-a-real-token", "/invite/not-a-real-token"];
+const PUBLIC = ["/login", "/terms", "/privacy", "/features/member-directory", "/features/export-and-delete", "/login?error=link", "/login/verify?token=not-a-real-token", "/invite/not-a-real-token"];
 for (const scheme of ["light", "dark"] as const) {
   test.describe(`public pages, ${scheme}`, () => {
     test.use({ colorScheme: scheme });

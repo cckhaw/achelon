@@ -29,7 +29,7 @@ export function InviteForm({ token, boundEmail, tenantName, prefill }: { token: 
         <label className="row card" style={{ alignItems: "flex-start" }}>
           <input type="checkbox" name="consent" className="switch" style={{ marginTop: "0.1rem" }} role="switch" aria-describedby="consent-text" />
           <span id="consent-text" className="row-main t-sub">
-            I agree that {tenantName} stores the details above to run the community, and that other members and admins see only what I allow here. I can export or delete my data at any time in Settings.
+            I agree that {tenantName} stores the details above to run the community, and that other members and admins see only what I allow here. I can export or delete my data at any time in Settings. I have read the <a href="/terms" target="_blank" rel="noopener">Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
           </span>
         </label>
         <details className="mt-3 t-sub">

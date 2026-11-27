@@ -143,7 +143,7 @@ html:has(.brand), body:has(.brand) { background: #ffffff; }
 .b-panel .b-stat small { display: block; font-size: 0.9375rem; font-weight: 600; letter-spacing: -0.01em; color: #ffffff; margin-top: 0.4rem; }
 
 .b-cards { display: grid; gap: 1.25rem; margin-top: 2.5rem; }
-@media (min-width: 48rem) { .b-cards { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 48rem) { .b-cards { grid-template-columns: repeat(2, 1fr); } }
 .b-res { border: 1px solid var(--line); border-radius: 1.25rem; overflow: hidden; background: var(--surface); display: flex; flex-direction: column; }
 .b-res-top { background: var(--y); color: #0a0a0a; min-height: 8rem; display: flex; align-items: flex-end; justify-content: space-between; padding: 1rem 1.25rem; font-size: 0.8125rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
 .b-res-body { padding: 1.25rem; }
@@ -154,7 +154,7 @@ html:has(.brand), body:has(.brand) { background: #ffffff; }
 .b-foot .b-logo { color: #ffffff; }
 .brand .b-foot a.b-logo { color: #ffffff; }
 .b-foot-grid { display: grid; gap: 2rem; margin-top: 2rem; }
-@media (min-width: 48rem) { .b-foot-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 48rem) { .b-foot-grid { grid-template-columns: repeat(3, 1fr); } }
 .b-foot h3 { font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #ffd60a; margin-bottom: 0.6rem; }
 .b-foot ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.35rem; color: #d6d6d6; }
 .b-legal { margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid rgb(255 255 255 / 0.16); color: #bdbdbd; font-size: 0.8125rem; }
@@ -170,9 +170,11 @@ html:has(.brand), body:has(.brand) { background: #ffffff; }
 
 /* Legal documents */
 .b-doc { max-width: 46rem; margin-inline: auto; }
-.b-doc h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); line-height: 1.1; margin: 0.25rem 0 0.25rem; }
+.b-doc h1 { font-weight: 800; letter-spacing: -0.03em; font-size: clamp(1.75rem, 5vw, 2.5rem); line-height: 1.1; margin: 0.25rem 0 0.25rem; }
 .b-doc h2 { font-size: 1.125rem; margin: 1.75rem 0 0.5rem; }
 .b-doc p, .b-doc li { line-height: 1.6; }
 .b-doc ul { padding-left: 1.25rem; display: grid; gap: 0.4rem; margin: 0.5rem 0; }
 .b-doc a { text-decoration: underline; text-underline-offset: 2px; }
-.b-foot .b-legal a, .b-foot ul a { color: #ffffff; text-decoration: underline; text-underline-offset: 2px; }
+.brand .b-foot .b-legal a:not(.btn), .brand .b-foot ul a:not(.btn) { color: #ffffff; text-decoration: underline; text-underline-offset: 2px; }
+.b-auth-legal { text-align: center; margin: 1.25rem 0 0; font-size: 0.875rem; color: inherit; }
+.brand .b-auth-legal a:not(.btn) { color: inherit; font-weight: 600; }
