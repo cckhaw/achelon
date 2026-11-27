@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { VerifyForm } from "@/components/forms/VerifyForm";
+import { AuthShell } from "@/components/brand/AuthShell";
 
 export const metadata: Metadata = { title: "Confirm sign-in" };
 export const dynamic = "force-dynamic";
@@ -8,11 +9,10 @@ export const dynamic = "force-dynamic";
 export default async function VerifyPage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const { token } = await searchParams;
   return (
-    <main className="auth-wrap" id="main">
-      <p className="t-caps">Achelon</p>
-      <h1 className="t-large mt-1">Confirm sign-in</h1>
-      <p className="muted mt-2 mb-6">Tap continue to finish signing in on this device.</p>
+    <AuthShell>
+      <h1>Confirm sign-in</h1>
+      <p className="b-sub">Tap continue to finish signing in on this device.</p>
       {token ? <VerifyForm token={token} /> : <p className="form-error" role="alert">This link is incomplete. Request a new one from the sign-in page.</p>}
-    </main>
+    </AuthShell>
   );
 }

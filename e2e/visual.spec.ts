@@ -74,3 +74,35 @@ test.describe("large text (200%)", () => {
     expect(errors, errors.join("\n")).toEqual([]);
   });
 });
+
+/** The public front door: sign-in, link confirmation, invitation. Same bar as the app: light, dark and 200% text. */
+const PUBLIC = ["/login", "/login?error=link", "/login/verify?token=not-a-real-token", "/invite/not-a-real-token"];
+for (const scheme of ["light", "dark"] as const) {
+  test.describe(`public pages, ${scheme}`, () => {
+    test.use({ colorScheme: scheme });
+    for (const large of [false, true]) {
+      test(`accessible and un-clipped${large ? " at 200% text" : ""}`, async ({ page }) => {
+        const errors = watchErrors(page);
+        for (const path of PUBLIC) {
+          await page.goto(path);
+          await page.waitForLoadState("networkidle");
+          if (large) await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+          const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+          expect(overflow, `${scheme}${large ? " 200%" : ""} ${path}: horizontal overflow`).toBeLessThanOrEqual(1);
+          const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
+          expect(r.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(" | ")}`), `${scheme} ${path}`).toEqual([]);
+          const crushed = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>("h1, h2, h3, .btn, .b-eyebrow, label")].filter((el) => {
+            if (el.offsetParent === null) return false;
+            const text = el.textContent!.trim();
+            const lh = parseFloat(getComputedStyle(el).lineHeight) || parseFloat(getComputedStyle(el).fontSize) * 1.3;
+            const lines = Math.round(el.getBoundingClientRect().height / lh);
+            return text.length >= 5 && lines >= 3 && text.length / lines < 3;
+          }).map((el) => el.textContent!.trim().slice(0, 30)));
+          expect(crushed, `${scheme} ${path}: crushed text`).toEqual([]);
+          await page.screenshot({ path: test.info().outputPath(`public-${scheme}${large ? "-large" : ""}-${path.replace(/[^a-z0-9]+/gi, "_")}.png`) });
+        }
+        expect(errors, errors.join("\n")).toEqual([]);
+      });
+    }
+  });
+}
