@@ -103,3 +103,6 @@ Operator named as "Achelon", contact `me@khaw.cc`, governing law Malaysia (Terms
 
 ## D-66: Black trim on the app shell
 Sidebar and phone tab bar are black with a 4px yellow edge; the active item is a yellow fill with black text. Sign out sits at the bottom of the sidebar (on phones it stays under Me). On wide screens the page bar lines up with the content and has padding above and to the right, so action buttons no longer touch the window edge.
+
+## D-67: Front-page footer pages; browser only
+Every Product and Privacy footer item has a public page at `/features/<slug>` (content in `src/lib/feature-pages.ts`, generic, names no community). The Install column, nav link and guide were removed because Achelon is used in the browser. Terms and Privacy links appear in the Legal column, the footer line, the sign-in card, and under every invite and confirm page; the invite consent text links to both. The Legal links were invisible before (dark link colour on black): fixed with matching specificity.

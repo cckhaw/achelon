@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { EchelonArt, Logo } from "./Logo";
+import { FEATURE_PAGES } from "@/lib/feature-pages";
 
 /**
  * The public front door at /login. Everything here is generic: it must never mention a community, a member or an event
@@ -24,7 +25,6 @@ const PANELS: { tag: string; title: string; body: string; stat: string; label: s
 const GUIDES: { tag: string; icon: IconName; title: string; body: string }[] = [
   { tag: "Guide", icon: "mail", title: "How invitations work", body: "Someone in the community invites you by email or by a single-use link. Accept it, choose a password, and set who sees what." },
   { tag: "Privacy", icon: "admin", title: "Your profile, field by field", body: "Name is shown to members. Everything else (job, company, city, pace) is shown only to the audience you pick, and you can change it any time." },
-  { tag: "Install", icon: "link", title: "Add it to your phone", body: "On iPhone open Achelon in Safari, tap Share, then Add to Home Screen. It opens full-screen like an app, in light or dark." },
 ];
 
 export function Landing({ form, error }: { form: ReactNode; error?: boolean }) {
@@ -41,7 +41,6 @@ export function Landing({ form, error }: { form: ReactNode; error?: boolean }) {
           <nav className="b-menu" aria-label="Page sections">
             <a href="#how" className="b-hide-sm">How it works</a>
             <a href="#privacy" className="b-hide-sm">Privacy</a>
-            <a href="#install" className="b-hide-sm">Install</a>
             <a className="btn btn-sm" href="#signin">Sign in</a>
           </nav>
         </div>
@@ -113,7 +112,7 @@ export function Landing({ form, error }: { form: ReactNode; error?: boolean }) {
           </div>
         </section>
 
-        <section className="b-section" id="install" style={{ paddingTop: 0 }} aria-labelledby="guides-title">
+        <section className="b-section" id="guides" style={{ paddingTop: 0 }} aria-labelledby="guides-title">
           <div className="b-wrap">
             <p className="b-kicker">Good to know</p>
             <h2 className="b-h2" id="guides-title">Short guides for new members.</h2>
@@ -133,9 +132,12 @@ export function Landing({ form, error }: { form: ReactNode; error?: boolean }) {
         <div className="b-wrap">
           <Logo />
           <div className="b-foot-grid">
-            <div><h3>Product</h3><ul><li>Member directory</li><li>Events and waitlists</li><li>Shared calendar</li><li>Race board</li></ul></div>
-            <div><h3>Privacy</h3><ul><li>Invite-only</li><li>Per-field visibility</li><li>No tracking</li><li>Export and delete</li></ul></div>
-            <div><h3>Install</h3><ul><li>iPhone and iPad</li><li>Android</li><li>Desktop browsers</li></ul></div>
+            {(["Product", "Privacy"] as const).map((g) => (
+              <div key={g}>
+                <h3>{g}</h3>
+                <ul>{FEATURE_PAGES.filter((p) => p.group === g).map((p) => <li key={p.slug}><Link href={`/features/${p.slug}`}>{p.title}</Link></li>)}</ul>
+              </div>
+            ))}
             <div><h3>Legal</h3><ul><li><Link href="/terms">Terms of Service</Link></li><li><Link href="/privacy">Privacy Policy</Link></li></ul></div>
           </div>
           <p className="b-legal">© {new Date().getFullYear()} Achelon. Invite-only and not indexed by search engines. One cookie, used only to keep you signed in. <Link href="/terms">Terms</Link> · <Link href="/privacy">Privacy</Link></p>

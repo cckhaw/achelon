@@ -144,3 +144,22 @@ test("admin invites a guest to an event; the guest accepts and sees only that ev
   await expect(g.getByRole("heading", { name: "Guest welcome ride" })).toBeVisible();
   await ctx.close();
 });
+
+test("front-page footer links every product and privacy page; there is no Install section", async ({ page }) => {
+  await page.goto("/login");
+  const foot = page.getByRole("contentinfo");
+  await expect(foot.getByRole("heading", { name: "Install" })).toHaveCount(0);
+  for (const name of ["Member directory", "Events and waitlists", "Shared calendar", "Race board", "Invite-only", "Per-field visibility", "No tracking", "Export and delete", "Terms of Service", "Privacy Policy"]) {
+    await expect(foot.getByRole("link", { name, exact: true })).toBeVisible();
+  }
+  await foot.getByRole("link", { name: "Per-field visibility" }).click();
+  await expect(page).toHaveURL(/\/features\/per-field-visibility$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Per-field visibility" })).toBeVisible();
+  expect((await page.request.get("/features/nope")).status()).toBe(404);
+});
+
+test("invite pages link to the Terms and Privacy Policy", async ({ page }) => {
+  await page.goto("/invite/not-a-real-token");
+  await expect(page.getByRole("link", { name: "Terms of Service" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Privacy Policy" })).toBeVisible();
+});

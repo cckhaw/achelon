@@ -16,6 +16,7 @@ export function AuthShell({ children, wide = false }: { children: ReactNode; wid
       <main id="main" tabIndex={-1} className="b-auth-main">
         <div className="b-wrap">
           <div className="b-card b-auth-card" style={wide ? { maxWidth: "40rem" } : undefined}>{children}</div>
+          <p className="b-auth-legal"><Link href="/terms">Terms of Service</Link> · <Link href="/privacy">Privacy Policy</Link></p>
         </div>
       </main>
     </div>
