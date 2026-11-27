@@ -68,7 +68,7 @@ test("login is neutral, member area is private, admin creates an invite that a n
   await p4.getByLabel("Password", { exact: true }).fill("a long e2e passphrase 2026");
   await p4.getByRole("button", { name: "Sign in", exact: true }).click();
   await p4.waitForURL(new RegExp(`/${run.slug}$`));
-  await expect(p4.getByRole("link", { name: "Password" })).toBeVisible();
+  await expect(p4.getByText("Sign in faster next time.")).toHaveCount(0); // they already have a password
   await ctx3.close();
 
   // The same link can't be reused.

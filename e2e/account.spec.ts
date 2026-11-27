@@ -59,3 +59,12 @@ test("set a password after an emailed link, then sign in with it; change needs t
   expect(errors).toEqual([]);
   await ctx.close(); await r.close();
 });
+
+test("a failed submit keeps what the person typed (no silent form reset)", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email address").fill("keeps-my-email@e2e.invalid");
+  await page.getByLabel("Password", { exact: true }).fill("not the right one at all");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page.getByText(/email and password don't match/)).toBeVisible();
+  await expect(page.getByLabel("Email address")).toHaveValue("keeps-my-email@e2e.invalid");
+});
