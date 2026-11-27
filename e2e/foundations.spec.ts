@@ -106,3 +106,13 @@ test("main screens have no serious accessibility violations", async ({ page }) =
     expect(bad.map((v) => `${path || "/"}: ${v.id} (${v.nodes.length})`), JSON.stringify(bad.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.html).slice(0, 2) })))).toEqual([]);
   }
 });
+
+test("legal pages are public and linked from the front page", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByRole("contentinfo").getByRole("link", { name: "Terms of Service" }).click();
+  await expect(page).toHaveURL(/\/terms$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Terms of Service" })).toBeVisible();
+  await page.getByRole("main").getByRole("link", { name: "Privacy Policy" }).click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Privacy Policy" })).toBeVisible();
+});
