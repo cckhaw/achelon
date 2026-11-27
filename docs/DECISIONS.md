@@ -109,3 +109,6 @@ Every Product and Privacy footer item has a public page at `/features/<slug>` (c
 
 ## D-68: Footer link style
 Front-page footer links have no underline, a yellow highlight with black text on hover (only on devices that hover), the same highlight while pressed, a yellow focus ring, and 44pt minimum touch targets. On phones the columns are two across with Legal below. The Terms/Privacy links sit in their own row, apart from the copyright text, so they pass the "link in a text block" accessibility rule without an underline.
+
+## D-69: Never send test mail through the paid provider
+The post-deploy smoke test runs against production and invites fake people at `@e2e.invalid`; with `RESEND_API_KEY` set, those invitations, confirmations and retries were real Resend calls. The outbox now never hands reserved test addresses (`.invalid`, `.test`, `.example`, `.localhost`, `example.com/net/org`) to the provider: they are marked done and counted as suppressed. A 4xx from the provider (other than 429) is permanent and is not retried (previously up to 5 paid attempts). Migration 0007 suppresses any such mail already queued. Local/dev behaviour (log and capture) is unchanged.

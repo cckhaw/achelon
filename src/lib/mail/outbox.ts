@@ -37,6 +37,18 @@ export async function enqueue(mail: OutgoingMail): Promise<boolean> {
 /** Captured mail for tests and e2e (only when no provider key is set). */
 export const devMailbox: OutgoingMail[] = [];
 
+/**
+ * Addresses that can never be real people: the reserved test TLDs (RFC 2606/6761) and the example domains. Our own
+ * end-to-end tests use them (including the post-deploy smoke test against production), and sending to them through a paid
+ * provider only costs money and hurts sender reputation, so they are never handed to the provider.
+ */
+export function isReservedTestAddress(email: string): boolean {
+  const domain = email.trim().toLowerCase().split("@").pop() ?? "";
+  return /(^|\.)(invalid|test|example|localhost)$/.test(domain) || /(^|\.)example\.(com|net|org)$/.test(domain);
+}
+
+class PermanentMailError extends Error {}
+
 async function deliver(m: typeof schema.emailOutbox.$inferSelect): Promise<void> {
   const key = env().RESEND_API_KEY;
   if (!key) {
@@ -44,12 +56,14 @@ async function deliver(m: typeof schema.emailOutbox.$inferSelect): Promise<void>
     devMailbox.push({ to: m.toEmail, subject: m.subject, text: m.bodyText, html: m.bodyHtml ?? undefined, category: m.category, dedupeKey: m.dedupeKey });
     return;
   }
+  if (isReservedTestAddress(m.toEmail)) return; // suppressed, never sent
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "Idempotency-Key": m.id },
     body: JSON.stringify({ from: env().MAIL_FROM, to: [m.toEmail], subject: m.subject, text: m.bodyText, html: m.bodyHtml ?? undefined }),
   });
-  if (!res.ok) throw new Error(`Resend ${res.status}`);
+  // 4xx (except rate limiting) means the request itself is bad, so retrying would only repeat a paid call that fails again.
+  if (!res.ok) throw res.status >= 400 && res.status < 500 && res.status !== 429 ? new PermanentMailError(`Resend ${res.status}`) : new Error(`Resend ${res.status}`);
 }
 
 export async function flush(limit = 25): Promise<{ sent: number; failed: number }> {
@@ -74,7 +88,7 @@ export async function flush(limit = 25): Promise<{ sent: number; failed: number 
       await db.update(schema.emailOutbox).set({ status: "sent", sentAt: new Date(), error: null, ...scrub }).where(eq(schema.emailOutbox.id, m.id));
       sent++;
     } catch (e) {
-      const final = m.attempts >= 5;
+      const final = e instanceof PermanentMailError || m.attempts >= 5;
       await db.update(schema.emailOutbox).set({ status: final ? "failed" : "pending", error: e instanceof Error ? e.message.slice(0, 200) : "error" }).where(eq(schema.emailOutbox.id, m.id));
       failed++;
     }
