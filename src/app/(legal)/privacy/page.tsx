@@ -4,6 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = { title: "Privacy Policy · Achelon" };
 
 const UPDATED = "27 November 2026";
+const CONTACT = "me@khaw.cc";
 
 export default function PrivacyPage() {
   return (
@@ -15,7 +16,7 @@ export default function PrivacyPage() {
       <p>Achelon collects the minimum it needs, and you decide who sees what. Nothing on Achelon is public or searchable, and there are no ads, analytics or third-party trackers.</p>
 
       <h2>1. Who is responsible</h2>
-      <p>Your community&apos;s owners and administrators decide whom to invite and how member information is used within the community. The platform operator runs the software and infrastructure on their behalf. This policy applies to both.</p>
+      <p>Your community&apos;s owners and administrators decide whom to invite and how member information is used within the community. Achelon (the platform operator, contact <a href={`mailto:${CONTACT}`}>{CONTACT}</a>) runs the software and infrastructure on their behalf. This policy applies to both.</p>
 
       <h2>2. What we collect</h2>
       <ul>
@@ -67,16 +68,16 @@ export default function PrivacyPage() {
         <li><strong>Deletion:</strong> Settings, Delete my account. Access ends at once and data is erased after 30 days.</li>
         <li><strong>Withdraw Strava:</strong> Settings, Strava, Disconnect.</li>
       </ul>
-      <p>Depending on where you live you may have further rights, such as objecting to processing or complaining to a data-protection authority. Contact an administrator of your community to exercise them.</p>
+      <p>Depending on where you live you may have further rights, such as objecting to processing or complaining to a data-protection authority. Email <a href={`mailto:${CONTACT}`}>{CONTACT}</a>, or contact an administrator of your community, to exercise them.</p>
 
       <h2>10. Security</h2>
-      <p>Each community&apos;s data is isolated at the database level, sessions can be revoked, passwords are hashed, and integration tokens are encrypted. No system is perfectly secure; tell an administrator promptly if you suspect a problem.</p>
+      <p>Each community&apos;s data is isolated at the database level, sessions can be revoked, passwords are hashed, and integration tokens are encrypted. No system is perfectly secure; tell an administrator or email us promptly if you suspect a problem.</p>
 
       <h2>11. Children</h2>
       <p>Achelon is for adults and is not directed at children.</p>
 
       <h2>12. Changes and contact</h2>
-      <p>We will note material changes in the service. Questions go to an owner or administrator of your community. See also the <Link href="/terms">Terms of Service</Link>.</p>
+      <p>We will note material changes in the service. Questions about this policy or your data go to <a href={`mailto:${CONTACT}`}>{CONTACT}</a>, or to an owner or administrator of your community. See also the <Link href="/terms">Terms of Service</Link>.</p>
     </>
   );
 }
