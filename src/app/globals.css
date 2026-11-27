@@ -165,8 +165,8 @@ img { max-width: 100%; }
 /* Navigation bar with large title: the compact title fades in once the large one scrolls away. */
 .navbar {
   position: sticky; top: 0; z-index: 20; margin: 0 calc(-1 * max(1rem, env(safe-area-inset-left)));
-  padding: env(safe-area-inset-top) max(1rem, env(safe-area-inset-right)) 0 max(1rem, env(safe-area-inset-left));
-  min-height: calc(2.75rem + env(safe-area-inset-top));
+  padding: calc(env(safe-area-inset-top) + 0.375rem) max(1rem, env(safe-area-inset-right)) 0.125rem max(1rem, env(safe-area-inset-left));
+  min-height: calc(3.5rem + env(safe-area-inset-top));
   display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
   background: transparent; border-bottom: 0.5px solid transparent; transition: background 0.2s, border-color 0.2s;
 }
@@ -313,3 +313,32 @@ dialog.sheet::backdrop { background: rgb(0 0 0 / 0.4); }
 
 /* Platform operator area: a single centred column, no tab bar or sidebar. */
 .platform-main { max-width: 44rem; margin: 0 auto; padding: 0 max(1rem, env(safe-area-inset-left)) calc(2rem + env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-right)); }
+
+/* ───────── Black trim (matches the front door): black navigation, yellow active state ───────── */
+.sidebar, .tabbar { background: #0a0a0a; border: 0; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.sidebar { border-right: 4px solid var(--accent); }
+.tabbar { border-top: 4px solid var(--accent); }
+.sidebar .t-caps, .sidebar .t-headline { color: #ffffff; }
+.sidebar .t-caps { color: var(--accent); font-weight: 700; letter-spacing: 0.14em; }
+.side-brand { padding: 0 0.75rem 1.25rem; }
+.side-link { color: #f2f2ea; }
+.side-link svg { color: #bdbdb0; }
+.side-link[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+.side-link[aria-current="page"] svg { color: var(--on-accent); }
+.tab { color: #cfcfc4; }
+.tab[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+.side-foot { margin-top: auto; padding-top: 1rem; }
+.side-signout {
+  display: flex; align-items: center; gap: 0.75rem; width: 100%; min-height: 2.75rem; padding: 0.5rem 0.75rem; border-radius: 0.75rem;
+  background: transparent; color: #f2f2ea; border: 1px solid #55554d; font: inherit; font-weight: 600; cursor: pointer;
+}
+.side-signout svg { width: 1.375rem; height: 1.375rem; flex: none; color: var(--accent); }
+.side-signout:hover { border-color: var(--accent); }
+.side-signout:focus-visible, .side-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.tab:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+
+/* Wide screens: the page bar lines up with the content and has room above and to the right (the action button used to touch the window edge). */
+@media (min-width: 48rem) {
+  .shell-main { padding-top: 1rem; padding-left: 2.5rem; padding-right: 2.5rem; }
+  .navbar { margin-inline: 0; padding-inline: 0; min-height: 3.5rem; }
+}

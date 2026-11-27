@@ -100,3 +100,6 @@ The sidebar takes at most 30% of the screen (`--side-w`), so iPad-size screens a
 
 ## D-65: Legal page details
 Operator named as "Achelon", contact `me@khaw.cc`, governing law Malaysia (Terms §11, §12; Privacy §1, §9, §12). Have the text reviewed by a lawyer before relying on it.
+
+## D-66: Black trim on the app shell
+Sidebar and phone tab bar are black with a 4px yellow edge; the active item is a yellow fill with black text. Sign out sits at the bottom of the sidebar (on phones it stays under Me). On wide screens the page bar lines up with the content and has padding above and to the right, so action buttons no longer touch the window edge.
