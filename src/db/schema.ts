@@ -378,6 +378,10 @@ export const stravaConnections = pgTable("strava_connections", {
   refreshTokenEnc: text("refresh_token_enc").notNull(),
   expiresAt: tstz("expires_at").notNull(),
   scope: text("scope"),
+  /** Member's consent to appear on event leaderboards (shown at connect time; can be switched off any time). */
+  shareResults: boolean("share_results").notNull().default(true),
+  /** Level inferred from the last 8 weeks of activity (visible to the member; others only see the verified badge). */
+  derivedLevel: level("derived_level"),
   connectedAt: tstz("connected_at").notNull().defaultNow(),
   lastSyncAt: tstz("last_sync_at"),
 });

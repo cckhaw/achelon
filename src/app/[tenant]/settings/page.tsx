@@ -6,17 +6,27 @@ import { PageHeader } from "@/components/ui/NavBar";
 import { Group, Row } from "@/components/ui";
 import { SheetButton } from "@/components/ui/Sheet";
 import { DeleteAccountForm, PreferencesForm } from "@/components/forms/SettingsForms";
+import { StravaPanel } from "@/components/forms/StravaPanel";
+import { getProvider } from "@/lib/strava/provider";
+import { connectionStatus } from "@/lib/strava/service";
+import { viewerFormat } from "@/lib/viewer";
 
 export const metadata: Metadata = { title: "Settings" };
 
-export default async function SettingsPage({ params }: { params: Promise<{ tenant: string }> }) {
+export default async function SettingsPage({ params, searchParams }: { params: Promise<{ tenant: string }>; searchParams: Promise<{ strava?: string }> }) {
   const { tenant } = await params;
+  const { strava } = await searchParams;
   const ctx = await requireMember(tenant);
   const [prefs] = await withTenant(ctx.tenant.id, (tx) => tx.select().from(schema.notificationPreferences).where(eq(schema.notificationPreferences.membershipId, ctx.membership.id)));
+  const provider = getProvider();
+  const conn = provider ? await connectionStatus(ctx.tenant.id, ctx.membership.id) : null;
+  const fmt = await viewerFormat(ctx.settings.defaultTimezone);
   return (
     <>
       <PageHeader title="Settings" back={{ href: `/${ctx.tenant.slug}/me`, label: "Me" }} />
       <PreferencesForm slug={ctx.tenant.slug} prefs={{ eventAnnouncements: prefs?.eventAnnouncements ?? true, reminders: prefs?.reminders ?? true, waitlist: prefs?.waitlist ?? true, digest: prefs?.digest ?? "off" }} />
+
+      {provider ? <StravaPanel slug={ctx.tenant.slug} view={{ mode: provider.mode, connected: conn ? { shareResults: conn.shareResults, derivedLevel: conn.derivedLevel, lastSync: conn.lastSyncAt ? fmt.dateTime(conn.lastSyncAt) : null } : null, flash: strava ?? null }} /> : null}
 
       <Group
         title="What admins can see"

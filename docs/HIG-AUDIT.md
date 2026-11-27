@@ -70,3 +70,12 @@ Still open (Phase 5): 200% text-size and dark-mode screenshot checks of the main
 Passed: date inputs are native pickers; every sheet form validates inline with `aria-describedby`; race "I'm going too" is a ≥44pt button with visible state ("You're going" badge, not colour-only); goal time is never shown to anyone but its owner; announcement composer confirms before sending; all long text uses the safe Markdown subset (no HTML).
 
 Axe sweep extended to announcements, nominate, races, admin announcements/applications: no serious/critical findings.
+
+## Phase 4 report (Strava)
+
+| # | Sev | Finding | HIG reference | Fix |
+|---|---|---|---|---|
+| 18 | Med | Disconnect confirmation vanished when the panel re-rendered | Acknowledge every action | Redirect with a persistent flash message ("Disconnected. Your Strava tokens, event results and badge have been erased.") |
+| 19 | Med | The leaderboard opt-in must be informed and reversible | Privacy transparency; no dark patterns | Consent switch shown *before* connecting, with plain-language effect; same switch afterwards; turning it off removes results at once |
+
+Passed: destructive Disconnect is separated and confirmed; leaderboard rank is a number, not colour; the feature is invisible (not a disabled button) when off; demo mode is labelled as such; all Strava errors give a plain next step (connect again / allow activity access).

@@ -7,6 +7,9 @@ import { withTenant } from "@/lib/db";
 import { getEvent } from "@/lib/services/events";
 import { racersForEvent } from "@/lib/services/races";
 import { listRecaps } from "@/lib/services/recaps";
+import { leaderboard } from "@/lib/strava/service";
+import { getProvider } from "@/lib/strava/provider";
+import { hasLeaderboard, paceOf, speedOf } from "@/lib/strava/leaderboard";
 import { RecapForm } from "@/components/forms/RecapForm";
 import { SheetButton } from "@/components/ui/Sheet";
 import { deleteRecapAction } from "@/app/[tenant]/events/recap-actions";
@@ -28,6 +31,7 @@ export default async function EventPage({ params }: { params: Promise<{ tenant: 
   if (!data) notFound();
   const [racers, recaps] = await withTenant(ctx.tenant.id, async (tx) => [data.event.type === "external_race" && ctx.can("races.view") ? await racersForEvent(tx, ctx.viewer, id) : [], await listRecaps(tx, id)] as const);
   const started = data.event.startsAt <= new Date();
+  const board = getProvider() && started && hasLeaderboard(data.event.type) ? await leaderboard(ctx.tenant.id, ctx.viewer, id) : [];
   const canRecap = started && data.event.status === "published" && ctx.can("recaps.write") && (ctx.can("events.manage") || data.mine === "going");
   const { event: e, counts, attendees, mine, myWaitRank, showNames } = data;
   const slug = ctx.tenant.slug;
@@ -89,6 +93,14 @@ export default async function EventPage({ params }: { params: Promise<{ tenant: 
         </Group>
       ) : null}
     
+      {board.length ? (
+        <Group title="Results" id="results" footer="From members' connected Strava accounts. Members choose whether to appear here.">
+          {board.map((r, i) => (
+            <Row key={r.membershipId} leading={<span className="t-headline" style={{ width: "1.75rem", textAlign: "center" }}>{i + 1}</span>} title={<>{r.name}{r.mine ? " (you)" : ""}</>} sub={`${(r.distanceM / 1000).toFixed(1)} km · ${Math.floor(r.movingTimeS / 3600)}:${String(Math.floor((r.movingTimeS % 3600) / 60)).padStart(2, "0")}:${String(r.movingTimeS % 60).padStart(2, "0")}`} value={e.type === "een_ride" ? `${speedOf(r).toFixed(1)} km/h` : `${Math.floor(paceOf(r) / 60)}:${String(paceOf(r) % 60).padStart(2, "0")} /km`} />
+          ))}
+        </Group>
+      ) : null}
+
       {started && e.status === "published" ? (
         <section aria-labelledby="recaps-h" className="mt-8">
           <div className="flex items-center justify-between mb-2">

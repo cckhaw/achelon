@@ -6,3 +6,5 @@ process.env.STRAVA_MODE = "mock";
 (process.env as Record<string, string>).NODE_ENV = "test";
 delete process.env.RESEND_API_KEY;
 process.env.CRON_SECRET = "test-cron-secret-123";
+process.env.STRAVA_CLIENT_ID = "test-client-id";
+process.env.STRAVA_CLIENT_SECRET = "test-client-secret";

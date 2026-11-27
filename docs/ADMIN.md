@@ -56,6 +56,9 @@ If sponsorship is on (Settings), members can **Nominate someone** (Me → Nomina
 ## Recaps
 After an event starts, people who were going (and admins) can write a recap with optional photo links. Authors and admins can delete them.
 
+## Strava (optional, per member)
+Off until you set the Strava credentials (HANDOVER). Once on, each member decides under **Settings → Strava**: connect (read-only), choose whether to appear on leaderboards, sync, disconnect (erases tokens, results and badge). The **Strava verified** badge appears on a member's profile if the member allows that field to be seen. Finished rides, runs and races then show a **Results** list for members who were going and shared. Nothing is ever posted to Strava.
+
 ## Insight
 Added with Phase 5; this document is extended as it lands.
 

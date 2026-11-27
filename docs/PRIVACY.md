@@ -15,6 +15,9 @@ Principle: collect the minimum; the member decides who sees what.
 | Strava connection (optional) | Verified level badge, event leaderboard | Tokens encrypted at rest; read-only scopes; only the badge/result is shown |
 | Audit log | Accountability for admin actions | Admins; stores ids, never names or emails |
 
+### Strava (only if you connect it)
+Read-only access to your profile and your own activities (`read,activity:read`). We keep encrypted access tokens, the Strava athlete id, the level inferred from your last 8 weeks of rides/runs (visible to you only), and, if you allow it, distance/time/climb for events you attended (shown on that event's leaderboard to members who can see the event). The badge shows only "Strava verified". Disconnecting (Settings → Strava) revokes access at Strava and erases tokens, results and the badge immediately.
+
 ## What is not collected
 No analytics, no advertising trackers, no third-party scripts or fonts, no location tracking, no contact-list access. The calendar feed is a secret URL per member; revoke it any time.
 

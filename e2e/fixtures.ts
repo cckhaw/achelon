@@ -81,3 +81,15 @@ export async function createEventDirect(run: Run, title = "Fixture ride"): Promi
     await p.end();
   }
 }
+
+/** A finished ride the member attended (for Strava leaderboard checks). */
+export async function createPastRide(run: Run, memberEmail: string): Promise<string> {
+  const p = pool();
+  try {
+    const e = await p.query("INSERT INTO events (tenant_id, type, title, starts_at, ends_at, timezone, status) VALUES ($1,'een_ride','Finished ride', now() - interval '2 days', now() - interval '2 days' + interval '2 hours','UTC','published') RETURNING id", [run.tenantId]);
+    await p.query("INSERT INTO event_signups (tenant_id, event_id, membership_id, status) SELECT $1, $2, m.id, 'going' FROM memberships m JOIN users u ON u.id = m.user_id WHERE u.email = $3 AND m.tenant_id = $1", [run.tenantId, e.rows[0].id, memberEmail]);
+    return e.rows[0].id as string;
+  } finally {
+    await p.end();
+  }
+}

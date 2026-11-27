@@ -29,6 +29,13 @@
       "when": 1795742880511,
       "tag": "0003_outbox_lease",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795743404590,
+      "tag": "0004_strava_consent",
+      "breakpoints": true
     }
   ]
 }
