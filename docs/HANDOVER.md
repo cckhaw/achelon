@@ -13,10 +13,7 @@ Everything below is already built and tested. What remains are the account-level
 GitHub → `cckhaw/achelon` → Settings → General → Danger zone → *Change visibility* → Private. (It was created public before this work started; the code contains no member data or secrets, but the brief asks for private.)
 
 ### 2. Database (Neon)
-1. Create a Neon project/database (any region near Singapore, e.g. `aws-ap-southeast-1`).
-2. Copy the **pooled** connection string of the owner role (the default `neondb_owner`): this is `DATABASE_URL_OWNER`.
-3. Choose a long random password for the runtime role: this is `APP_DB_PASSWORD`. The first deploy creates the role `achelon_app` (non-owner, RLS-enforced) with that password.
-4. Build `DATABASE_URL` from the same host: `postgresql://achelon_app:<APP_DB_PASSWORD>@<same pooled host>/<db>?sslmode=require`.
+Create a Neon project/database (a region near Singapore, e.g. `aws-ap-southeast-1`). The Vercel Neon integration's `DATABASE_URL` (the pooled owner URL) is all the app needs: on the first deploy the migration creates a restricted `achelon_app` role (no login, no extra secret) and every tenant transaction runs as that role (`SET LOCAL ROLE`), so row-level security always applies. The app refuses to serve if that role could bypass RLS. Optional: set `APP_DB_PASSWORD` to give the role a login, and point `DATABASE_URL` at it instead.
 
 ### 3. Email (Resend)
 Create an API key (sending access) and verify the domain `khaw.cc` (or your sending domain). Set `MAIL_FROM` if it isn't `Achelon <noreply@khaw.cc>`. Until then email is written to the server log only.
@@ -28,8 +25,8 @@ Generate two app secrets: `openssl rand -base64 32` (APP_SECRET) and `openssl ra
 
 | Name | Value | Type |
 |---|---|---|
-| `DATABASE_URL` | `achelon_app` connection string (step 2.4) | Sensitive |
-| `DATABASE_URL_OWNER` | owner connection string (step 2.2) | Sensitive |
+| `DATABASE_URL` | the Neon integration's pooled URL (already set by the integration) | Sensitive |
+| `DATABASE_URL_OWNER` | optional; defaults to `DATABASE_URL` | Sensitive |
 | `APP_SECRET` | random, 32+ chars | Sensitive |
 | `CRON_SECRET` | random | Sensitive |
 | `RESEND_API_KEY` | from Resend | Sensitive |
@@ -44,8 +41,8 @@ Generate two app secrets: `openssl rand -base64 32` (APP_SECRET) and `openssl ra
 | `VERCEL_ORG_ID` | `team_FdOJU6k0aSSHE2P7hHTWrNuP` |
 | `VERCEL_TEAM_ID` | `team_FdOJU6k0aSSHE2P7hHTWrNuP` |
 | `VERCEL_PROJECT_ID` | `prj_Vsd9XaM3Jc2EeGVbLXi2zaaWnVsU` |
-| `DATABASE_URL_OWNER` | same as in Vercel (used to migrate and for the production smoke test) |
-| `APP_DB_PASSWORD` | the runtime role password |
+| `DATABASE_URL_OWNER` | the Neon owner URL (used to migrate, bootstrap and for the production smoke test) |
+| `APP_DB_PASSWORD` | optional |
 
 ### 5. DNS (ClouDNS, where khaw.cc is hosted)
 Add one record:
@@ -57,7 +54,7 @@ Add one record:
 (`cname.vercel-dns.com.` also works. This mirrors how `bibliotek.khaw.cc` is set up.) Vercel issues the TLS certificate automatically once it resolves.
 
 ### 6. Deploy
-Merge the pull request (or run *Deploy production* manually). The workflow: lint + typecheck + tests → **migrate the database** → `vercel deploy --prod` → wait for health → **end-to-end happy path against https://achelon.khaw.cc** → delete older deployments.
+Every merge to `main` runs *Deploy production* (or run it manually): lint + typecheck + tests → **migrate the database** → `vercel deploy --prod` → wait until READY → **delete every earlier deployment** → in parallel, health check and the **end-to-end happy path against https://achelon.khaw.cc**.
 
 ### 7. Create EEN and its owner
 GitHub → Actions → **Bootstrap community** → Run workflow: slug `een`, name `Executive Endurance Network`, your email. Then open https://achelon.khaw.cc/login, enter that email, and follow the link. Then follow `docs/ADMIN.md` ("First day"): settings → import the CRM CSV → send invitations.
@@ -67,7 +64,7 @@ GitHub → Actions → **Bootstrap community** → Run workflow: slug `een`, nam
 ### Rotate secrets
 - **`APP_SECRET`**: changes the key for rate-limit buckets, Strava token encryption and OAuth state. Rotating it invalidates stored Strava tokens (members reconnect) and nothing else. Update in Vercel, redeploy.
 - **`CRON_SECRET`**: update in Vercel; Vercel Cron picks it up on the next deploy.
-- **Database**: `ALTER ROLE achelon_app PASSWORD '…'` (as owner) or change `APP_DB_PASSWORD` and re-run *Deploy production*; update `DATABASE_URL` in Vercel to match. Rotate the Neon owner password in Neon, then both `DATABASE_URL_OWNER` copies.
+- **Database**: rotate the Neon owner password in Neon (the integration updates `DATABASE_URL`), then update the `DATABASE_URL_OWNER` GitHub secret. Only if you gave `achelon_app` a login: `ALTER ROLE achelon_app PASSWORD '…'`.
 - **Sessions**: to sign everyone out, run `DELETE FROM sessions;` as owner.
 - **Resend / Strava keys**: replace in Vercel and redeploy.
 
