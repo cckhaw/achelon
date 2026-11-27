@@ -47,7 +47,7 @@ export function parseVisibility(form: FormData): Partial<Record<VisibilityField,
 
 export const emailSchema = z.string().trim().toLowerCase().max(254).pipe(z.email());
 /** Top-level paths owned by the app: a community slug must never shadow one of them. */
-export const RESERVED_SLUGS = new Set(["login", "invite", "cal", "api", "admin", "app", "static", "icon", "apple-touch-icon", "favicon", "manifest", "robots", "sitemap", "_next", "health", "www", "achelon", "settings", "me", "events", "directory"]);
+export const RESERVED_SLUGS = new Set(["login", "invite", "cal", "api", "admin", "app", "static", "icon", "apple-touch-icon", "favicon", "manifest", "robots", "sitemap", "_next", "health", "www", "achelon", "settings", "me", "events", "directory", "terms", "privacy"]);
 export const slugSchema = z.string().trim().toLowerCase().regex(/^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/, "Lowercase letters, numbers and dashes").refine((s) => !RESERVED_SLUGS.has(s) && !s.startsWith("icon") && !s.startsWith("apple-touch"), "That name is reserved");
 
 /** FormData → plain object, keeping repeated keys as arrays for the keys listed in `arrays`. */

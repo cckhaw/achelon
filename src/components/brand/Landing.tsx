@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { EchelonArt, Logo } from "./Logo";
@@ -64,7 +65,7 @@ export function Landing({ form, error }: { form: ReactNode; error?: boolean }) {
               <p className="b-sub">Use your email and password, or ask for a one-time link.</p>
               {error ? <p className="form-error mb-4" role="alert">That link has expired or was already used. Request a new one below.</p> : null}
               {form}
-              <p className="t-foot mt-6" style={{ color: "var(--card-muted)" }}>Achelon is invite-only. New here? Ask a member to sponsor you, then use the link in your invitation email.</p>
+              <p className="t-foot mt-6" style={{ color: "var(--card-muted)" }}>Achelon is invite-only. New here? Ask a member to sponsor you, then use the link in your invitation email. By signing in you agree to the <Link href="/terms">Terms</Link> and <Link href="/privacy">Privacy Policy</Link>.</p>
             </div>
           </div>
         </section>
@@ -135,8 +136,9 @@ export function Landing({ form, error }: { form: ReactNode; error?: boolean }) {
             <div><h3>Product</h3><ul><li>Member directory</li><li>Events and waitlists</li><li>Shared calendar</li><li>Race board</li></ul></div>
             <div><h3>Privacy</h3><ul><li>Invite-only</li><li>Per-field visibility</li><li>No tracking</li><li>Export and delete</li></ul></div>
             <div><h3>Install</h3><ul><li>iPhone and iPad</li><li>Android</li><li>Desktop browsers</li></ul></div>
+            <div><h3>Legal</h3><ul><li><Link href="/terms">Terms of Service</Link></li><li><Link href="/privacy">Privacy Policy</Link></li></ul></div>
           </div>
-          <p className="b-legal">© {new Date().getFullYear()} Achelon. Invite-only and not indexed by search engines. One cookie, used only to keep you signed in.</p>
+          <p className="b-legal">© {new Date().getFullYear()} Achelon. Invite-only and not indexed by search engines. One cookie, used only to keep you signed in. <Link href="/terms">Terms</Link> · <Link href="/privacy">Privacy</Link></p>
         </div>
       </footer>
     </div>
