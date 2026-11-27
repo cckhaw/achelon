@@ -50,6 +50,13 @@
       "when": 1795758518903,
       "tag": "0006_event_invites",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795769242799,
+      "tag": "0007_suppress_test_mail",
+      "breakpoints": true
     }
   ]
 }
