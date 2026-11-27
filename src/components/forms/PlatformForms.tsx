@@ -2,6 +2,7 @@
 import { useActionState, useState } from "react";
 import { addOwnerAction, createCommunityAction, setSuspendedAction } from "@/app/platform/actions";
 import { Field, FormMessage, describedBy } from "@/components/ui";
+import { TimezoneSelect } from "@/components/ui/TimezoneSelect";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 
 const slugify = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
@@ -22,8 +23,8 @@ export function CreateCommunityForm({ defaultTimezone }: { defaultTimezone: stri
       <Field label="First owner's email" name="ownerEmail" error={e.ownerEmail} hint="They get an email with a link to set a password and sign in.">
         <input id="ownerEmail" name="ownerEmail" type="email" inputMode="email" autoCapitalize="none" className="input" required {...describedBy("ownerEmail", e.ownerEmail, true)} />
       </Field>
-      <Field label="Default time zone" name="timezone" error={e.timezone} hint="For example Asia/Singapore. The owner can change it later.">
-        <input id="timezone" name="timezone" className="input" defaultValue={defaultTimezone} autoCapitalize="none" spellCheck={false} {...describedBy("timezone", e.timezone, true)} />
+      <Field label="Default time zone" name="timezone" error={e.timezone} hint="Malaysia (GMT+8) unless you change it. The owner can change it later.">
+        <TimezoneSelect defaultValue={defaultTimezone} {...describedBy("timezone", e.timezone, true)} />
       </Field>
       <FormMessage state={state?.fieldErrors ? { error: state.error } : state} />
       <SubmitButton className="btn btn-block" pendingLabel="Creating…">Create community</SubmitButton>

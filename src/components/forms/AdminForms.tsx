@@ -2,13 +2,14 @@
 import { useActionState } from "react";
 import { changeRoleAction, createInviteAction, emailAllUnsentAction, importAction, resendInviteAction, revokeInviteAction, saveSettingsAction, setStatusAction, type ImportState } from "@/app/[tenant]/admin/actions";
 import { Field, FormMessage, describedBy } from "@/components/ui";
+import { TimezoneSelect } from "@/components/ui/TimezoneSelect";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { CopyField } from "@/components/ui/CopyField";
 import { EVENT_TYPES, MEMBERSHIP_ROLES, type EventType, type MembershipRole } from "@/db/constants";
 import { t, type MessageKey } from "@/lib/i18n";
 import { IMPORT_TEMPLATE } from "@/lib/import-constants";
 
-export function CreateInviteForm({ slug, roles, sponsors }: { slug: string; roles: MembershipRole[]; sponsors: { id: string; name: string }[] }) {
+export function CreateInviteForm({ slug, roles, sponsors, eventId }: { slug: string; roles: MembershipRole[]; sponsors: { id: string; name: string }[]; eventId?: string }) {
   const [state, action] = useActionState(createInviteAction.bind(null, slug), undefined);
   const errors = state?.fieldErrors ?? {};
   return (
@@ -20,20 +21,23 @@ export function CreateInviteForm({ slug, roles, sponsors }: { slug: string; role
         </div>
       ) : null}
       <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-4" noValidate key={state?.data?.url ?? "new"}>
-        <Field label="Email (optional)" name="email" error={errors.email} hint="With an email, we send the invitation and only that address can use it. Leave empty to get a single-use link to share yourself.">
+        {eventId ? <input type="hidden" name="eventId" value={eventId} /> : null}
+        <Field label={eventId ? "Email" : "Email (optional)"} name="email" error={errors.email} hint={eventId ? "We email an invitation to this event. Only that address can use it. Leave empty to get a single-use link to share yourself." : "With an email, we send the invitation and only that address can use it. Leave empty to get a single-use link to share yourself."}>
           <input id="email" name="email" type="email" inputMode="email" autoCapitalize="none" autoComplete="off" className="input" {...describedBy("email", errors.email, true)} />
         </Field>
         <Field label="Role" name="role">
-          <select id="role" name="role" className="select" defaultValue="member">
+          <select id="role" name="role" className="select" defaultValue={eventId && roles.includes("guest") ? "guest" : "member"}>
             {roles.map((r) => <option key={r} value={r}>{t(`role.${r}` as MessageKey)}</option>)}
           </select>
         </Field>
-        <Field label="Sponsor (optional)" name="sponsor" hint="The member vouching for this person.">
-          <select id="sponsor" name="sponsor" className="select" defaultValue="">
-            <option value="">No sponsor</option>
-            {sponsors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
-        </Field>
+        {eventId ? null : (
+          <Field label="Sponsor (optional)" name="sponsor" hint="The member vouching for this person.">
+            <select id="sponsor" name="sponsor" className="select" defaultValue="">
+              <option value="">No sponsor</option>
+              {sponsors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </Field>
+        )}
         <Field label="Note (optional)" name="note" error={errors.note} hint="Shown in the invitation email.">
           <input id="note" name="note" className="input" maxLength={300} {...describedBy("note", errors.note, true)} />
         </Field>
@@ -142,7 +146,7 @@ export function ImportForm({ slug }: { slug: string }) {
   );
 }
 
-export function SettingsForm({ slug, values }: { slug: string; values: { name: string; defaultTimezone: string; brand: string; types: EventType[]; sponsorship: boolean } }) {
+export function SettingsForm({ slug, values }: { slug: string; values: { name: string; defaultTimezone: string; types: EventType[]; sponsorship: boolean } }) {
   const [state, action] = useActionState(saveSettingsAction.bind(null, slug), undefined);
   const e = state?.fieldErrors ?? {};
   return (
@@ -150,13 +154,8 @@ export function SettingsForm({ slug, values }: { slug: string; values: { name: s
       <Field label="Community name" name="name" error={e.name}>
         <input id="name" name="name" className="input" required maxLength={80} defaultValue={values.name} {...describedBy("name", e.name)} />
       </Field>
-      <Field label="Default time zone" name="defaultTimezone" error={e.defaultTimezone} hint="Used for new events and for members who haven't set their own. For example Asia/Singapore.">
-        <input id="defaultTimezone" name="defaultTimezone" className="input" defaultValue={values.defaultTimezone} autoCapitalize="none" spellCheck={false} {...describedBy("defaultTimezone", e.defaultTimezone, true)} />
-      </Field>
-      <Field label="Accent colour" name="brand">
-        <select id="brand" name="brand" className="select" defaultValue={values.brand}>
-          <option value="green">Green</option><option value="blue">Blue</option><option value="violet">Violet</option><option value="graphite">Graphite</option>
-        </select>
+      <Field label="Default time zone" name="defaultTimezone" error={e.defaultTimezone} hint="Used for new events and for members who haven't set their own. Malaysia (GMT+8) unless you change it.">
+        <TimezoneSelect id="defaultTimezone" name="defaultTimezone" defaultValue={values.defaultTimezone} {...describedBy("defaultTimezone", e.defaultTimezone, true)} />
       </Field>
       <fieldset>
         <legend className="field-label">Allowed event types</legend>

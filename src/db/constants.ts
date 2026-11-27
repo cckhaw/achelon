@@ -31,7 +31,6 @@ export type AttendeeVisibility = (typeof ATTENDEE_VISIBILITIES)[number];
 export type SignupStatus = (typeof SIGNUP_STATUSES)[number];
 
 export interface TenantSettings {
-  branding?: { tint?: string };
   defaultTimezone?: string;
   allowedEventTypes?: EventType[];
   /** Members may nominate new members (admin approves). */
@@ -39,7 +38,7 @@ export interface TenantSettings {
 }
 
 export const DEFAULT_TENANT_SETTINGS: Required<Pick<TenantSettings, "defaultTimezone" | "allowedEventTypes" | "sponsorshipEnabled">> = {
-  defaultTimezone: "UTC",
+  defaultTimezone: "Asia/Kuala_Lumpur", // Malaysia, GMT+8
   allowedEventTypes: [...EVENT_TYPES],
   sponsorshipEnabled: true,
 };

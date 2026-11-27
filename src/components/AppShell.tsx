@@ -12,13 +12,13 @@ function isActive(pathname: string, href: string, root: string) {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
-export function AppShell({ root, tabs, extra, tenantName, children, navLabel, brand }: {
-  root: string; tabs: NavItem[]; extra: NavItem[]; tenantName: string; children: React.ReactNode; navLabel: string; brand?: string;
+export function AppShell({ root, tabs, extra, tenantName, children, navLabel }: {
+  root: string; tabs: NavItem[]; extra: NavItem[]; tenantName: string; children: React.ReactNode; navLabel: string;
 }) {
   const pathname = usePathname();
   const all = [...tabs, ...extra];
   return (
-    <div className="shell" data-brand={brand}>
+    <div className="shell">
       <a href="#main" className="skip-link">Skip to content</a>
       <nav className="sidebar" aria-label={navLabel}>
         <div style={{ padding: "0 0.75rem 1rem" }}>

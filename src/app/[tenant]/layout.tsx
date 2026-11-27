@@ -28,7 +28,7 @@ export default async function TenantLayout({ children, params }: { children: Rea
   if (ctx.can("admin.access")) extra.push({ href: `${base}/admin`, label: t("nav.admin"), icon: "admin" });
 
   return (
-    <AppShell root={base} tabs={tabs} extra={extra} tenantName={ctx.tenant.name} navLabel={t("nav.primary")} brand={ctx.settings.branding?.tint}>
+    <AppShell root={base} tabs={tabs} extra={extra} tenantName={ctx.tenant.name} navLabel={t("nav.primary")}>
       {children}
     </AppShell>
   );

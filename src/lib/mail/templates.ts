@@ -2,15 +2,19 @@
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
 function wrap(title: string, bodyHtml: string, cta?: { label: string; url: string }, footer = "You are receiving this because of your Achelon membership.") {
-  return `<!doctype html><html><body style="margin:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1d1d1f">
-<div style="max-width:520px;margin:0 auto;padding:32px 20px">
-<p style="font-size:13px;letter-spacing:.04em;color:#6e6e73;margin:0 0 16px">ACHELON</p>
-<div style="background:#fff;border-radius:16px;padding:28px">
-<h1 style="font-size:22px;margin:0 0 12px">${esc(title)}</h1>${bodyHtml}
-${cta ? `<p style="margin:24px 0 0"><a href="${esc(cta.url)}" style="display:inline-block;background:#0f6b5c;color:#fff;text-decoration:none;padding:12px 20px;border-radius:12px;font-weight:600">${esc(cta.label)}</a></p><p style="font-size:12px;color:#6e6e73;word-break:break-all">${esc(cta.url)}</p>` : ""}
-</div><p style="font-size:12px;color:#6e6e73;margin:16px 4px">${esc(footer)}</p></div></body></html>`;
+  // Black and yellow, matching the app. Inline styles and tables only: mail clients ignore <style> and most modern CSS.
+  return `<!doctype html><html><body style="margin:0;background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#0a0a0a">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a"><tr><td align="center" style="padding:28px 16px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px">
+<tr><td style="padding:0 4px 16px"><span style="display:inline-block;background:#ffd60a;color:#0a0a0a;font-weight:800;font-size:13px;letter-spacing:.14em;padding:6px 12px;border-radius:8px">ACHELON</span></td></tr>
+<tr><td style="background:#ffffff;border-top:6px solid #ffd60a;border-radius:16px;padding:28px">
+<h1 style="font-size:22px;line-height:1.25;margin:0 0 12px;color:#0a0a0a">${esc(title)}</h1>${bodyHtml}
+${cta ? `<p style="margin:24px 0 0"><a href="${esc(cta.url)}" style="display:inline-block;background:#ffd60a;color:#0a0a0a;text-decoration:none;padding:13px 22px;border-radius:12px;font-weight:700;border:2px solid #0a0a0a">${esc(cta.label)}</a></p><p style="font-size:12px;color:#55524a;word-break:break-all;margin:14px 0 0">${esc(cta.url)}</p>` : ""}
+</td></tr>
+<tr><td style="padding:16px 4px 0;font-size:12px;line-height:1.5;color:#bdbdbd">${esc(footer)}</td></tr>
+</table></td></tr></table></body></html>`;
 }
-const p = (s: string) => `<p style="font-size:15px;line-height:1.5;margin:0 0 12px">${esc(s)}</p>`;
+const p = (s: string) => `<p style="font-size:15px;line-height:1.55;margin:0 0 12px;color:#0a0a0a">${esc(s)}</p>`;
 
 export function magicLinkMail(url: string) {
   return {
@@ -20,12 +24,12 @@ export function magicLinkMail(url: string) {
   };
 }
 
-export function inviteMail(o: { url: string; tenantName: string; inviter?: string | null; note?: string | null; days: number }) {
+export function inviteMail(o: { url: string; tenantName: string; inviter?: string | null; note?: string | null; days: number; eventTitle?: string | null }) {
   const who = o.inviter ? `${o.inviter} has invited you` : "You have been invited";
   return {
-    subject: `You're invited to ${o.tenantName} on Achelon`,
-    text: `${who} to join ${o.tenantName} on Achelon.${o.note ? `\n\n"${o.note}"` : ""}\n\nAccept your invitation (single use, valid ${o.days} days):\n${o.url}`,
-    html: wrap(`Join ${o.tenantName}`, p(`${who} to join ${o.tenantName} on Achelon.`) + (o.note ? p(`"${o.note}"`) : "") + p(`The link works once and is valid for ${o.days} days.`), { label: "Accept invitation", url: o.url }, "Sent because someone invited this address. If this is unexpected, ignore it."),
+    subject: o.eventTitle ? `You're invited: ${o.eventTitle}` : `You're invited to ${o.tenantName} on Achelon`,
+    text: `${who} to ${o.eventTitle ? `${o.eventTitle}, an event run by ${o.tenantName} on Achelon. Accept to create your account and see the details` : `join ${o.tenantName} on Achelon`}.${o.note ? `\n\n"${o.note}"` : ""}\n\nAccept your invitation (single use, valid ${o.days} days):\n${o.url}`,
+    html: wrap(o.eventTitle ? o.eventTitle : `Join ${o.tenantName}`, p(o.eventTitle ? `${who} to ${o.eventTitle}, an event run by ${o.tenantName} on Achelon. Accept to create your account and see the details.` : `${who} to join ${o.tenantName} on Achelon.`) + (o.note ? p(`"${o.note}"`) : "") + p(`The link works once and is valid for ${o.days} days.`), { label: "Accept invitation", url: o.url }, "Sent because someone invited this address. If this is unexpected, ignore it."),
   };
 }
 

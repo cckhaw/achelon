@@ -17,6 +17,8 @@ export default defineConfig({
   use: { baseURL, trace: "off", screenshot: "off" },
   projects: [
     { name: "iphone", use: iphone },
+    // Tablet (iPad portrait metrics): only the visual/layout checks, which already assert no sideways scroll and no clipping.
+    { name: "tablet", testMatch: /visual\.spec\.ts/, use: { ...devices["iPad (gen 7)"], browserName: "chromium" as const, defaultBrowserType: "chromium" as const } },
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } } },
   ],
   webServer: external ? undefined : { command: "npm run build && npm run start -- -p 3000", url: baseURL, timeout: 240_000, reuseExistingServer: true },

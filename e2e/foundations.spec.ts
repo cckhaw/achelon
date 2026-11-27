@@ -15,7 +15,8 @@ test("login is neutral, member area is private, admin creates an invite that a n
   await expect(page).toHaveURL(/\/login/);
   await page.goto("/login");
   await page.getByLabel("Email address").fill("nobody-here@e2e.invalid");
-  await page.getByRole("button", { name: /email me a link/i }).click();
+  await expect(page.getByRole("button", { name: /email me a link/i })).toHaveCount(0); // email links are for resetting a password only
+  await page.getByRole("button", { name: "Forgot password?" }).click();
   await expect(page.getByText(/If that address belongs to a member/)).toBeVisible();
   expect((await page.request.get("/robots.txt")).status()).toBe(200);
   expect(await (await page.request.get("/robots.txt")).text()).toContain("Disallow: /");
@@ -115,4 +116,31 @@ test("legal pages are public and linked from the front page", async ({ page }) =
   await page.getByRole("main").getByRole("link", { name: "Privacy Policy" }).click();
   await expect(page).toHaveURL(/\/privacy$/);
   await expect(page.getByRole("heading", { level: 1, name: "Privacy Policy" })).toBeVisible();
+});
+
+test("admin invites a guest to an event; the guest accepts and sees only that event", async ({ page, browser, baseURL }) => {
+  const eventId = await createEventDirect(run, "Guest welcome ride");
+  await signInAs(page, run.adminEmail);
+  await page.goto(`/${run.slug}/admin/events/${eventId}`);
+  await expect(page.getByRole("heading", { name: "Invite people" })).toBeVisible();
+  await expect(page.getByLabel("Event link (sign-in required)")).toHaveValue(new RegExp(`/${run.slug}/events/${eventId}$`));
+  await page.getByRole("button", { name: "Invite someone by email" }).click();
+  const sheet = page.getByRole("dialog");
+  await sheet.getByLabel("Email", { exact: true }).fill(`guest-${run.id}@e2e.invalid`);
+  await expect(sheet.getByLabel("Role")).toHaveValue("guest");
+  await sheet.getByRole("button", { name: "Create invitation" }).click();
+  await expect(sheet.getByText(/Invitation emailed to/)).toBeVisible();
+  const link = await sheet.getByLabel("Invitation link").inputValue();
+
+  const ctx = await browser.newContext({ ...(test.info().project.use as object), baseURL });
+  const g = await ctx.newPage();
+  await g.goto(new URL(link).pathname);
+  await g.locator("#password").fill("a long e2e passphrase 2026");
+  await g.getByLabel("Name", { exact: true }).fill("Gus Guest");
+  await g.getByRole("switch", { name: /I agree/ }).check();
+  await g.getByRole("button", { name: /^Join/ }).click();
+  await g.waitForURL(new RegExp(`/${run.slug}`));
+  await g.goto(`/${run.slug}/events/${eventId}`);
+  await expect(g.getByRole("heading", { name: "Guest welcome ride" })).toBeVisible();
+  await ctx.close();
 });

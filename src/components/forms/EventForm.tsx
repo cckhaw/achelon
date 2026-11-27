@@ -1,6 +1,7 @@
 "use client";
 import { useActionState, useState } from "react";
 import { saveEventAction } from "@/app/[tenant]/admin/events/actions";
+import { TimezoneSelect } from "@/components/ui/TimezoneSelect";
 import { Field, FormMessage, describedBy } from "@/components/ui";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ATTENDEE_VISIBILITIES, EVENT_VISIBILITIES, type EventType } from "@/db/constants";
@@ -32,7 +33,9 @@ export function EventForm({ slug, eventId, values, allowedTypes, members, locked
       <Field label="Description" name="description" error={e.description} hint="Plain text. **bold**, *italic*, [links](https://…) and “- ” lists work.">
         <textarea id="description" name="description" className="textarea" maxLength={4000} defaultValue={values.description} {...describedBy("description", e.description, true)} />
       </Field>
-      {f("timezone", "Time zone", { autoCapitalize: "none", spellCheck: false }, "The event's own zone, e.g. Asia/Singapore. Times below are in this zone; members see them in their own zone too.")}
+      <Field label="Time zone" name="timezone" error={e.timezone} hint="The event's own zone (default Malaysia, GMT+8). Times below are in this zone; members see them in their own zone too.">
+        <TimezoneSelect defaultValue={values.timezone} {...describedBy("timezone", e.timezone, true)} />
+      </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         {f("start", "Starts", { type: "datetime-local", required: true })}
         {f("end", "Ends (optional)", { type: "datetime-local" })}

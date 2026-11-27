@@ -213,6 +213,8 @@ export const invites = pgTable(
     /** Profile details from a CSV import, shown prefilled on the accept screen and wiped on use (D-33). */
     prefill: jsonb("prefill").$type<{ name?: string; company?: string; jobTitle?: string; city?: string; country?: string } | null>(),
     emailedAt: tstz("emailed_at"),
+    /** When set, accepting the invitation also puts the person on this event's invite list. */
+    eventId: uuid("event_id").references(() => events.id, { onDelete: "set null" }),
     createdAt: tstz("created_at").notNull().defaultNow(),
   },
   (t) => [index("invites_tenant_idx").on(t.tenantId, t.createdAt)],

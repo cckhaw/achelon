@@ -62,7 +62,7 @@ export function Landing({ form, error }: { form: ReactNode; error?: boolean }) {
             </div>
             <div className="b-card" id="signin" tabIndex={-1}>
               <h2>Sign in</h2>
-              <p className="b-sub">Use your email and password, or ask for a one-time link.</p>
+              <p className="b-sub">Use your email and password. Forgotten it? Reset it by email.</p>
               {error ? <p className="form-error mb-4" role="alert">That link has expired or was already used. Request a new one below.</p> : null}
               {form}
               <p className="t-foot mt-6" style={{ color: "var(--card-muted)" }}>Achelon is invite-only. New here? Ask a member to sponsor you, then use the link in your invitation email. By signing in you agree to the <Link href="/terms">Terms</Link> and <Link href="/privacy">Privacy Policy</Link>.</p>

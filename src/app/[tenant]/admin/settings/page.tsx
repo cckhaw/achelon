@@ -11,7 +11,7 @@ export default async function CommunitySettings({ params }: { params: Promise<{ 
   return (
     <>
       <PageHeader back={{ href: `/${ctx.tenant.slug}/admin`, label: "Admin" }} title="Community settings" />
-      <SettingsForm slug={ctx.tenant.slug} values={{ name: ctx.tenant.name, defaultTimezone: ctx.settings.defaultTimezone, brand: ctx.settings.branding?.tint ?? "green", types: ctx.settings.allowedEventTypes, sponsorship: ctx.settings.sponsorshipEnabled }} />
+      <SettingsForm slug={ctx.tenant.slug} values={{ name: ctx.tenant.name, defaultTimezone: ctx.settings.defaultTimezone, types: ctx.settings.allowedEventTypes, sponsorship: ctx.settings.sponsorshipEnabled }} />
     </>
   );
 }
