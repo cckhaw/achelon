@@ -1,0 +1,10 @@
+process.env.DATABASE_URL_OWNER = process.env.TEST_DATABASE_URL_OWNER ?? "postgresql://achelon:achelon@localhost:5432/achelon_test";
+process.env.DATABASE_URL = process.env.TEST_DATABASE_URL ?? "postgresql://achelon_app:achelon_app@localhost:5432/achelon_test";
+process.env.APP_SECRET = "test-secret-test-secret-test-secret-test";
+process.env.APP_URL = "http://localhost:3000";
+process.env.STRAVA_MODE = "mock";
+(process.env as Record<string, string>).NODE_ENV = "test";
+delete process.env.RESEND_API_KEY;
+process.env.CRON_SECRET = "test-cron-secret-123";
+process.env.STRAVA_CLIENT_ID = "test-client-id";
+process.env.STRAVA_CLIENT_SECRET = "test-client-secret";

@@ -1,0 +1,41 @@
+name: Bootstrap community
+
+# Manual: creates a community and its first owner in the production database (idempotent). This is the only way a
+# community comes into being (there is no public sign-up). Use it for EEN on day one and for any later community.
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: URL slug, e.g. een (lowercase letters, numbers, dashes)
+        required: true
+        default: een
+      name:
+        description: Display name
+        required: true
+        default: Executive Endurance Network
+      owner_email:
+        description: Email of the first owner (they sign in with a magic link)
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Create community and owner
+        env:
+          # Only the owner connection is used by this script; the other two satisfy env validation.
+          DATABASE_URL_OWNER: ${{ secrets.DATABASE_URL_OWNER }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL_OWNER }}
+          APP_SECRET: bootstrap-placeholder-secret-not-used-0000
+          BOOTSTRAP_TENANT_SLUG: ${{ inputs.slug }}
+          BOOTSTRAP_TENANT_NAME: ${{ inputs.name }}
+          BOOTSTRAP_OWNER_EMAIL: ${{ inputs.owner_email }}
+        run: npm run db:bootstrap
