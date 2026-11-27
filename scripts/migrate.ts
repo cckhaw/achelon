@@ -6,9 +6,9 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { makePool } from "../src/lib/db/pool";
 
-const ownerUrl = process.env.DATABASE_URL_OWNER;
+const ownerUrl = process.env.DATABASE_URL_OWNER ?? process.env.DATABASE_URL;
 if (!ownerUrl) {
-  console.error("DATABASE_URL_OWNER is not set");
+  console.error("DATABASE_URL_OWNER (or DATABASE_URL) is not set");
   process.exit(1);
 }
 const appPassword = process.env.APP_DB_PASSWORD;
@@ -18,18 +18,21 @@ try {
   await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
   console.log("Migrations applied.");
 
-  const role = "achelon_app";
+  const role = process.env.DB_APP_ROLE ?? "achelon_app";
+  if (!/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error("Invalid DB_APP_ROLE");
+  const lit = async (v: string) => (await pool.query("SELECT quote_literal($1) AS v", [v])).rows[0].v as string;
   const exists = await pool.query("SELECT 1 FROM pg_roles WHERE rolname = $1", [role]);
   if (!exists.rowCount) {
-    if (!appPassword) throw new Error("APP_DB_PASSWORD is required to create the achelon_app role");
-    // Identifiers/literals cannot be bound parameters in CREATE ROLE; the password is escaped as a literal.
-    const lit = (await pool.query("SELECT quote_literal($1) AS v", [appPassword])).rows[0].v as string;
-    await pool.query(`CREATE ROLE ${role} LOGIN PASSWORD ${lit} NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE`);
-    console.log(`Created role ${role}.`);
+    // With a password the role can also log in directly (separate-URL setup). Without one it is NOLOGIN and is only ever
+    // reached by SET ROLE from the owner connection, which needs no second secret.
+    const login = appPassword ? `LOGIN PASSWORD ${await lit(appPassword)}` : "NOLOGIN";
+    await pool.query(`CREATE ROLE ${role} ${login} NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE`);
+    console.log(`Created role ${role} (${appPassword ? "login" : "nologin, via SET ROLE"}).`);
   } else if (appPassword) {
-    const lit = (await pool.query("SELECT quote_literal($1) AS v", [appPassword])).rows[0].v as string;
-    await pool.query(`ALTER ROLE ${role} PASSWORD ${lit}`);
+    await pool.query(`ALTER ROLE ${role} PASSWORD ${await lit(appPassword)}`);
   }
+  // The owner connection must be allowed to switch into the restricted role (PG16: explicit SET option).
+  await pool.query(`GRANT ${role} TO CURRENT_USER WITH SET TRUE, INHERIT FALSE`);
 
   const db = (await pool.query("SELECT current_database() AS d")).rows[0].d as string;
   await pool.query(`GRANT CONNECT ON DATABASE "${db}" TO ${role}`);
