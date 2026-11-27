@@ -59,14 +59,12 @@ export const en = {
   "signup.declined": "Can't make it",
   "signup.cancelled": "Cancelled",
   "login.title": "Sign in",
-  "login.lede": "Sign in with your email and password, or ask for a one-time link.",
-  "login.sent": "If that address belongs to a member, a sign-in link is on its way. It works once and expires in 15 minutes.",
+  "login.lede": "Sign in with your email and password.",
   "login.sent.reset": "If that address belongs to a member, an email with a link to set or reset your password is on its way. It works once and expires in 15 minutes.",
   "login.password": "Password",
   "login.signin": "Sign in",
   "login.forgot": "Forgot password?",
   "login.email": "Email address",
-  "login.submit": "Email me a link",
 } as const;
 
 export type MessageKey = keyof typeof en;

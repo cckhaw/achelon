@@ -21,16 +21,20 @@ interface Actor { membershipId: string; role: MembershipRole; tenantId: string }
 export async function createInvite(
   tx: Tx,
   actor: Actor,
-  o: { email?: string | null; role: MembershipRole; sponsorMembershipId?: string | null; note?: string | null; days?: number },
+  o: { email?: string | null; role: MembershipRole; sponsorMembershipId?: string | null; note?: string | null; days?: number; eventId?: string | null },
 ): Promise<{ id: string; token: string; expiresAt: Date }> {
   if (!canAssignRole(actor.role, o.role)) throw new ForbiddenError("You can't grant that role");
+  if (o.eventId) {
+    const [ev] = await tx.select({ id: schema.events.id }).from(schema.events).where(and(eq(schema.events.id, o.eventId), eq(schema.events.tenantId, actor.tenantId))).limit(1);
+    if (!ev) throw new ForbiddenError("That event doesn't exist");
+  }
   const token = randomToken();
   const expiresAt = new Date(Date.now() + (o.days ?? INVITE_TTL_DAYS) * 86_400_000);
   const [row] = await tx.insert(schema.invites).values({
     tenantId: actor.tenantId, email: o.email ?? null, tokenHash: sha256Hex(token), createdByMembershipId: actor.membershipId,
-    sponsorMembershipId: o.sponsorMembershipId ?? null, roleGranted: o.role, expiresAt, note: o.note ?? null,
+    sponsorMembershipId: o.sponsorMembershipId ?? null, roleGranted: o.role, expiresAt, note: o.note ?? null, eventId: o.eventId ?? null,
   }).returning({ id: schema.invites.id });
-  await audit(tx, { tenantId: actor.tenantId, actor: actor.membershipId, action: "invite.created", targetType: "invite", targetId: row.id, metadata: { role: o.role, bound: Boolean(o.email), sponsored: Boolean(o.sponsorMembershipId) } });
+  await audit(tx, { tenantId: actor.tenantId, actor: actor.membershipId, action: "invite.created", targetType: "invite", targetId: row.id, metadata: { role: o.role, bound: Boolean(o.email), event: o.eventId ?? null, sponsored: Boolean(o.sponsorMembershipId) } });
   return { id: row.id, token, expiresAt };
 }
 

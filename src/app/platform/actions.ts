@@ -18,7 +18,7 @@ async function operator() {
 export async function createCommunityAction(_prev: ActionState | undefined, form: FormData): Promise<ActionState> {
   return run(async () => {
     await operator();
-    const r = await createCommunity({ slug: String(form.get("slug") ?? ""), name: String(form.get("name") ?? ""), ownerEmail: String(form.get("ownerEmail") ?? ""), timezone: String(form.get("timezone") ?? "UTC") });
+    const r = await createCommunity({ slug: String(form.get("slug") ?? ""), name: String(form.get("name") ?? ""), ownerEmail: String(form.get("ownerEmail") ?? ""), timezone: String(form.get("timezone") ?? "Asia/Kuala_Lumpur") });
     if (!r.ok) return { ok: false, error: r.field ? "Please fix the highlighted field." : r.error, fieldErrors: r.field ? { [r.field]: r.error } : undefined };
     revalidatePath("/platform");
     redirect(`/platform/${r.slug}?created=1`);

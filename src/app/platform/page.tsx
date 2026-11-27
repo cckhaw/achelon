@@ -1,3 +1,4 @@
+import { DEFAULT_TIMEZONE } from "@/lib/timezones";
 import type { Metadata } from "next";
 import { listCommunities } from "@/lib/system/platform";
 import { PageHeader } from "@/components/ui/NavBar";
@@ -12,7 +13,7 @@ export default async function PlatformPage() {
   const [communities, fmt] = await Promise.all([listCommunities(), viewerFormat()]);
   return (
     <>
-      <PageHeader title="Communities" subtitle="Create and manage communities. Operators don't see member data." action={<SheetButton label="New community" title="New community" icon="plus" className="btn btn-sm"><CreateCommunityForm defaultTimezone="Asia/Singapore" /></SheetButton>} />
+      <PageHeader title="Communities" subtitle="Create and manage communities. Operators don't see member data." action={<SheetButton label="New community" title="New community" icon="plus" className="btn btn-sm"><CreateCommunityForm defaultTimezone={DEFAULT_TIMEZONE} /></SheetButton>} />
       {communities.length ? (
         <Group>
           {communities.map((c) => (

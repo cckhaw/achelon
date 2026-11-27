@@ -18,10 +18,7 @@ export function LoginForm() {
       <PasswordInput label={t("login.password")} error={e.password} required={false} />
       <FormMessage state={state?.fieldErrors ? undefined : state} />
       <SubmitButton className="btn btn-block" pendingLabel="Signing in…">{t("login.signin")}</SubmitButton>
-      <div className="grid gap-2">
-        <button type="submit" name="intent" value="link" formNoValidate className="btn btn-tinted btn-block" disabled={pending}>{t("login.submit")}</button>
-        <button type="submit" name="intent" value="reset" formNoValidate className="btn btn-plain" disabled={pending}>{t("login.forgot")}</button>
-      </div>
+      <button type="submit" name="intent" value="reset" formNoValidate className="btn btn-plain btn-block" disabled={pending}>{t("login.forgot")}</button>
     </form>
   );
 }

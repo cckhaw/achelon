@@ -82,3 +82,18 @@ Format: **D-n** decision — why. Newest at the bottom of each section.
 
 ## D-59: Public Terms and Privacy pages
 `/terms` and `/privacy` are public, generic pages (route group `src/app/(legal)`, brand theme, `force-dynamic` so the proxy's CSP nonce applies) linked from the front-page footer, legal line and sign-in card. "terms" and "privacy" are reserved community slugs. The text is a starting template that mirrors `docs/PRIVACY.md`; it names no legal entity, governing jurisdiction or contact address, so the owner should have it reviewed and add those before relying on it.
+
+## D-60: Password-only sign-in; email links only to reset
+The sign-in form has no "Email me a link" option. Email and password sign in; "Forgot password?" emails a single-use link that lands on the set-password page (also how a member with no password yet sets one). Invitation and confirm-email links are unchanged.
+
+## D-61: One black-and-yellow theme everywhere
+The member app uses the same palette as the front door: dark = black surfaces with yellow accents; light = pale-yellow page, white cards, black controls with yellow labels (yellow is a fill, never text on white). The per-community accent colour setting was removed. Email templates, the PWA manifest, theme-color and app icons follow the palette.
+
+## D-62: Malaysia (GMT+8) default time zone, dropdown everywhere
+`Asia/Kuala_Lumpur` is the default for new communities, new events and the viewer fallback. Every time-zone field is a dropdown ("Common" zones first, then all IANA zones by GMT offset). Migration 0006 moves communities that never chose a zone (unset, UTC or Asia/Singapore) to Malaysia.
+
+## D-63: Inviting people to an event
+`invites.event_id` (migration 0006). An admin can email an invitation from the event's admin page; accepting it creates the account (guest by default) and puts the person on that event's invite list. `canViewEvent`: being on an event's invite list always grants access, including guests on all-members events. The admin page also shows the event link for members who are already signed up.
+
+## D-64: Tablet layout
+The sidebar takes at most 30% of the screen (`--side-w`), so iPad-size screens at 200% text keep room for content. A `tablet` Playwright project (iPad metrics) runs the visual checks.

@@ -21,7 +21,8 @@ import { sha256Hex } from "@/lib/crypto";
 const inviteUrl = (token: string) => `${env().APP_URL}/invite/${token}`;
 
 async function emailInvite(tenantId: string, tenantName: string, inviteId: string, to: string, token: string, inviterName: string | null, note: string | null) {
-  const mail = inviteMail({ url: inviteUrl(token), tenantName, inviter: inviterName, note, days: 14 });
+  const [ev] = await withTenant(tenantId, (tx) => tx.select({ title: schema.events.title }).from(schema.invites).innerJoin(schema.events, eq(schema.events.id, schema.invites.eventId)).where(eq(schema.invites.id, inviteId)));
+  const mail = inviteMail({ url: inviteUrl(token), tenantName, inviter: inviterName, note, days: 14, eventTitle: ev?.title ?? null });
   await enqueue({ tenantId, to, ...mail, category: "essential", dedupeKey: `invite:${inviteId}:${sha256Hex(token).slice(0, 12)}` });
   await withTenant(tenantId, (tx) => tx.update(schema.invites).set({ emailedAt: new Date() }).where(eq(schema.invites.id, inviteId)));
   await scheduleFlush();
@@ -36,7 +37,8 @@ const createSchema = z.object({
   email: z.union([z.literal(""), emailSchema]).transform((v) => v || null),
   role: z.enum(MEMBERSHIP_ROLES),
   note: z.string().trim().max(300).transform((v) => v || null),
-  sponsor: z.union([z.literal(""), z.uuid()]).transform((v) => v || null),
+  sponsor: z.union([z.literal(""), z.uuid()]).transform((v) => v || null).optional(),
+  eventId: z.union([z.literal(""), z.uuid()]).transform((v) => v || null).optional(),
 });
 
 export async function createInviteAction(slug: string, _prev: ActionState | undefined, form: FormData): Promise<ActionState> {
@@ -45,10 +47,11 @@ export async function createInviteAction(slug: string, _prev: ActionState | unde
     const p = createSchema.safeParse(Object.fromEntries(form));
     if (!p.success) return zodState(p.error);
     const actor = { membershipId: ctx.membership.id, role: ctx.membership.role, tenantId: ctx.tenant.id };
-    const inv = await withTenant(ctx.tenant.id, (tx) => createInvite(tx, actor, { email: p.data.email, role: p.data.role, note: p.data.note, sponsorMembershipId: p.data.sponsor }));
+    const inv = await withTenant(ctx.tenant.id, (tx) => createInvite(tx, actor, { email: p.data.email, role: p.data.role, note: p.data.note, sponsorMembershipId: p.data.sponsor ?? null, eventId: p.data.eventId ?? null }));
     if (p.data.email) {
       await emailInvite(ctx.tenant.id, ctx.tenant.name, inv.id, p.data.email, inv.token, await inviterName(ctx.tenant.id, ctx.membership.id), p.data.note);
       revalidatePath(`/${slug}/admin/invites`);
+      if (p.data.eventId) revalidatePath(`/${slug}/admin/events/${p.data.eventId}`);
       return success(`Invitation emailed to ${p.data.email}.`, { url: inviteUrl(inv.token) });
     }
     revalidatePath(`/${slug}/admin/invites`);
@@ -147,16 +150,15 @@ export async function importAction(slug: string, _prev: ImportState | undefined,
 const settingsSchema = z.object({
   name: z.string().trim().min(2, "Enter a community name").max(80),
   defaultTimezone: z.string().trim().refine(isValidTimeZone, "Unknown time zone"),
-  brand: z.enum(["green", "blue", "violet", "graphite"]).default("green"),
   types: z.array(z.enum(EVENT_TYPES)).min(1, "Allow at least one event type"),
 });
 
 export async function saveSettingsAction(slug: string, _prev: ActionState | undefined, form: FormData): Promise<ActionState> {
   return run(async () => {
     const ctx = await requireMemberForAction(slug, "settings.manage");
-    const p = settingsSchema.safeParse({ name: form.get("name"), defaultTimezone: form.get("defaultTimezone"), brand: form.get("brand") ?? "green", types: form.getAll("types") });
+    const p = settingsSchema.safeParse({ name: form.get("name"), defaultTimezone: form.get("defaultTimezone"), types: form.getAll("types") });
     if (!p.success) return zodState(p.error);
-    const settings = { ...ctx.tenant.settings, defaultTimezone: p.data.defaultTimezone, allowedEventTypes: p.data.types, sponsorshipEnabled: form.get("sponsorship") === "on", branding: { tint: p.data.brand } };
+    const settings = { ...ctx.tenant.settings, defaultTimezone: p.data.defaultTimezone, allowedEventTypes: p.data.types, sponsorshipEnabled: form.get("sponsorship") === "on" };
     await withTenant(ctx.tenant.id, async (tx) => {
       await tx.update(schema.tenants).set({ name: p.data.name, settings }).where(eq(schema.tenants.id, ctx.tenant.id));
       await audit(tx, { tenantId: ctx.tenant.id, actor: ctx.membership.id, action: "settings.updated", metadata: { sponsorship: settings.sponsorshipEnabled } });

@@ -43,6 +43,13 @@
       "when": 1795749622912,
       "tag": "0005_password_platform",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795758518903,
+      "tag": "0006_event_invites",
+      "breakpoints": true
     }
   ]
 }

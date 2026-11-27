@@ -10,6 +10,12 @@ import { Badge, Group, Row } from "@/components/ui";
 import { EventForm, type EventFormValues } from "@/components/forms/EventForm";
 import { AttendeeActions, CancelEventForm } from "@/components/forms/EventAdminActions";
 import { utcToZonedLocal } from "@/lib/time";
+import { SheetButton } from "@/components/ui/Sheet";
+import { CopyField } from "@/components/ui/CopyField";
+import { CreateInviteForm } from "@/components/forms/AdminForms";
+import { can, canAssignRole } from "@/lib/rbac";
+import { MEMBERSHIP_ROLES } from "@/db/constants";
+import { env } from "@/lib/env";
 import { t, type MessageKey } from "@/lib/i18n";
 
 export const metadata: Metadata = { title: "Event · Admin" };
@@ -46,6 +52,15 @@ export default async function AdminEvent({ params, searchParams }: { params: Pro
       <PageHeader title={e.title} back={{ href: `${b}/admin/events`, label: "Events" }} action={<Link href={`${b}/events/${e.id}`} className="btn btn-plain">View</Link>} />
       {saved ? <p className="form-ok mb-4" role="status">Event created.</p> : null}
       <p className="flex flex-wrap gap-1 mb-4"><Badge>{t(`eventType.${e.type}` as MessageKey)}</Badge><Badge tone={e.status === "published" ? "tint" : e.status === "draft" ? "muted" : "danger"}>{e.status}</Badge></p>
+
+      {e.status === "published" && can(ctx.membership.role, "invites.manage") ? (
+        <Group title="Invite people" id="invite" footer="Members already in the community can open the event link once they are signed in. To bring in someone new, email them an invitation: they join as a guest (or member) and are added to this event automatically.">
+          <div className="row" style={{ display: "grid", gap: "0.75rem" }}>
+            <CopyField value={`${env().APP_URL}/${ctx.tenant.slug}/events/${e.id}`} label="Event link (sign-in required)" />
+            <div><SheetButton label="Invite someone by email" title={`Invite to ${e.title}`} icon="plus" className="btn btn-sm"><CreateInviteForm slug={ctx.tenant.slug} roles={MEMBERSHIP_ROLES.filter((r) => canAssignRole(ctx.membership.role, r) && (r === "guest" || r === "member"))} sponsors={[]} eventId={e.id} /></SheetButton></div>
+          </div>
+        </Group>
+      ) : null}
 
       <Group title={`Going (${by("going").length}${e.capacity ? ` of ${e.capacity}` : ""})`} id="going" footer={<a href={`${b}/admin/events/${e.id}/export`} download>Download attendee list (CSV)</a>}>
         {by("going").length ? by("going").map((s) => (

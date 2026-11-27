@@ -7,48 +7,51 @@
  */
 :root {
   color-scheme: light dark;
-  --bg: #f2f2f7;
+  /* Black and yellow. Yellow is only ever a fill (never text on white); text is black on yellow and yellow on black. */
+  --accent: #ffd60a;
+  --on-accent: #0a0a0a;
+  --bg: #fff9d6;               /* pale yellow page */
   --surface: #ffffff;
-  --surface-2: #f7f7fa;
-  --fg: #1c1c1e;
-  --muted: #5c5c63;            /* 6.4:1 on white, 5.6:1 on --bg */
-  --line: rgb(60 60 67 / 0.18);
-  --line-strong: #8a8a90;      /* input borders: 3.4:1 (WCAG 1.4.11) */
-  --tint: #0b6b5d;             /* club green: 6.3:1 on white */
-  --tint-soft: rgb(11 107 93 / 0.1);
-  --on-tint: #ffffff;
+  --surface-2: #fffcea;
+  --fg: #0a0a0a;
+  --muted: #55524a;            /* 7.3:1 on white, 6.3:1 on --bg */
+  --line: rgb(10 10 10 / 0.16);
+  --line-strong: #7a7766;      /* input borders: 4.3:1 on white (WCAG 1.4.11) */
+  --tint: #0a0a0a;             /* controls and active states are black... */
+  --tint-soft: rgb(255 214 10 / 0.42); /* ...on a yellow wash */
+  --on-tint: #ffd60a;          /* black buttons carry yellow labels: 14.9:1 */
   --danger: #c4251b;           /* 5.7:1 on white */
   --danger-soft: rgb(196 37 27 / 0.09);
   --warn: #8a5a00;
   --warn-soft: rgb(176 112 0 / 0.12);
   --ok: #17703a;
-  --mat: rgb(249 249 251 / 0.78);
-  --mat-edge: rgb(60 60 67 / 0.16);
+  --mat: rgb(255 249 214 / 0.86);
+  --mat-edge: rgb(10 10 10 / 0.18);
   --shadow: 0 1px 2px rgb(0 0 0 / 0.04);
-  --seg-on: #ffffff;
+  --seg-on: #ffd60a;
   --tab-h: 3.25rem;
   --radius: 0.875rem;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #000000;
-    --surface: #1c1c1e;
-    --surface-2: #232326;
-    --fg: #f5f5f7;
-    --muted: #a3a3aa;           /* 7.6:1 on --surface */
-    --line: rgb(84 84 88 / 0.55);
-    --line-strong: #7c7c82;
-    --tint: #45d1b6;            /* 9.9:1 on --surface */
-    --tint-soft: rgb(69 209 182 / 0.14);
-    --on-tint: #03231d;
+    --bg: #0a0a0a;
+    --surface: #161616;
+    --surface-2: #1d1d1d;
+    --fg: #f7f7f2;
+    --muted: #aaa89d;           /* 7.7:1 on --surface */
+    --line: rgb(255 255 255 / 0.14);
+    --line-strong: #7f7d72;
+    --tint: #ffd60a;            /* yellow on black: 13.7:1 */
+    --tint-soft: rgb(255 214 10 / 0.15);
+    --on-tint: #0a0a0a;
     --danger: #ff6f66;
     --danger-soft: rgb(255 111 102 / 0.14);
     --warn: #ffbf47;
     --warn-soft: rgb(255 191 71 / 0.14);
     --ok: #5fd68a;
-    --mat: rgb(28 28 30 / 0.76);
-    --mat-edge: rgb(84 84 88 / 0.5);
-    --seg-on: #636366;
+    --mat: rgb(10 10 10 / 0.86);
+    --mat-edge: rgb(255 255 255 / 0.16);
+    --seg-on: #3a3400;
   }
 }
 @media (prefers-reduced-transparency: reduce) {
@@ -134,21 +137,22 @@ img { max-width: 100%; }
   padding: 0.3rem 0.25rem; font-size: min(0.6875rem, 13px); line-height: 1.1; font-weight: 500; color: var(--muted); text-decoration: none; border-radius: 0.75rem;
 }
 /* Active tab is not colour-only: heavier label and thicker icon stroke as well. */
-.tab[aria-current="page"] { color: var(--tint); font-weight: 700; }
+.tab[aria-current="page"] { color: var(--tint); font-weight: 700; background: var(--tint-soft); }
 .tab[aria-current="page"] svg, .side-link[aria-current="page"] svg { stroke-width: 2.4; }
 .tab svg { width: min(1.5rem, 30px); height: min(1.5rem, 30px); }
+/* The sidebar never takes more than 30% of the screen, so tablets at the largest text size still have room for content. */
+:root { --side-w: min(16rem, 30vw); }
 .sidebar { display: none; }
 @media (min-width: 48rem) {
   .tabbar { display: none; }
   .sidebar {
-    display: flex; flex-direction: column; gap: 0.25rem; position: fixed; inset: 0 auto 0 0; width: 16rem; z-index: 20;
+    display: flex; flex-direction: column; gap: 0.25rem; position: fixed; inset: 0 auto 0 0; width: var(--side-w); z-index: 20;
     padding: calc(1.25rem + env(safe-area-inset-top)) 0.75rem 1rem max(0.75rem, env(safe-area-inset-left)); overflow-y: auto;
     background: var(--mat); border-right: 0.5px solid var(--mat-edge); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
   }
-  .shell-main { margin-left: 16rem; max-width: none; padding-bottom: 3rem; padding-left: 2rem; padding-right: 2rem; }
+  .shell-main { margin-left: var(--side-w); max-width: none; padding-bottom: 3rem; padding-left: 2rem; padding-right: 2rem; }
   .shell-inner { max-width: 52rem; margin: 0 auto; }
 }
-@media (min-width: 75rem) { .shell-main { margin-left: 16rem; } }
 .side-link {
   display: flex; align-items: center; gap: 0.75rem; min-height: 2.75rem; padding: 0.5rem 0.75rem; border-radius: 0.75rem;
   color: var(--fg); text-decoration: none; font-weight: 500;
@@ -235,11 +239,11 @@ a.row:active, button.row:active { background: var(--surface-2); }
 .chip input:checked + span { background: var(--tint-soft); border-color: var(--tint); color: var(--tint); font-weight: 600; }
 .chip input:focus-visible + span { outline: 3px solid var(--tint); outline-offset: 2px; }
 
-.badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; background: var(--tint-soft); color: var(--tint); white-space: nowrap; }
+.badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: var(--accent); color: var(--on-accent); white-space: nowrap; }
 .badge-warn { background: var(--warn-soft); color: var(--warn); }
 .badge-muted { background: var(--line); color: var(--muted); }
 .badge-danger { background: var(--danger-soft); color: var(--danger); }
-.avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--tint-soft); color: var(--tint); font-weight: 600; flex: none; overflow: hidden; object-fit: cover; }
+.avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-weight: 600; flex: none; overflow: hidden; object-fit: cover; }
 
 /* Sheets: bottom sheet on phones, centred on wide screens. Native <dialog>: focus trap, Esc, inert backdrop. */
 dialog.sheet {
@@ -268,16 +272,6 @@ dialog.sheet::backdrop { background: rgb(0 0 0 / 0.4); }
 
 /* Standalone (installed) PWA: pad for the status bar / dynamic island. */
 .auth-wrap { min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: calc(2rem + env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right)) calc(2rem + env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left)); max-width: 28rem; margin: 0 auto; }
-
-/* Community accent presets (admin setting). Each pair is checked for >=4.5:1 on its surface. */
-[data-brand="blue"] { --tint: #0a58c9; --tint-soft: rgb(10 88 201 / 0.1); --on-tint: #fff; }
-[data-brand="violet"] { --tint: #6340c4; --tint-soft: rgb(99 64 196 / 0.1); --on-tint: #fff; }
-[data-brand="graphite"] { --tint: #3b3b41; --tint-soft: rgb(59 59 65 / 0.1); --on-tint: #fff; }
-@media (prefers-color-scheme: dark) {
-  [data-brand="blue"] { --tint: #6db3ff; --tint-soft: rgb(109 179 255 / 0.15); --on-tint: #021b3a; }
-  [data-brand="violet"] { --tint: #b9a2ff; --tint-soft: rgb(185 162 255 / 0.15); --on-tint: #1a0a45; }
-  [data-brand="graphite"] { --tint: #d4d4da; --tint-soft: rgb(212 212 218 / 0.14); --on-tint: #1c1c1e; }
-}
 
 /* Controls are not text: no selection highlight or iOS long-press callout on them (HIG interaction fidelity). */
 .btn, .tab, .side-link, .segmented > *, .chip span, .switch, .navbar button, .navbar a {

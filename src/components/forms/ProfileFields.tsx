@@ -1,6 +1,6 @@
 import { LEVELS, OPEN_TO, SPORTS, VISIBILITY_FIELDS, VISIBLE_TO, type VisibilityField, type VisibleTo } from "@/db/constants";
 import { Field, Group, describedBy } from "@/components/ui";
-import { TimezoneInput } from "./TimezoneInput";
+import { TimezoneSelect } from "@/components/ui/TimezoneSelect";
 import { formatPace } from "@/lib/validation";
 import { t, type MessageKey } from "@/lib/i18n";
 import type { ProfileData } from "@/lib/visibility";
@@ -37,7 +37,7 @@ export function ProfileFields({ values = {}, errors = {} }: { values?: ProfileDe
         </Field>
       </div>
       <Field label="Time zone" name="timezone" error={e("timezone")} hint="Used to show event times in your local time. Only you and admins can see it.">
-        <TimezoneInput defaultValue={values.timezone ?? ""} invalid={Boolean(e("timezone"))} />
+        <TimezoneSelect defaultValue={values.timezone ?? ""} blankLabel="Same as the community default" {...describedBy("timezone", e("timezone"), true)} />
       </Field>
       <fieldset>
         <legend className="field-label">Sports</legend>

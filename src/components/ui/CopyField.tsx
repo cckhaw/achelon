@@ -1,13 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 export function CopyField({ value, label = "Invitation link" }: { value: string; label?: string }) {
+  const id = useId();
   const [done, setDone] = useState(false);
   return (
     <div>
-      <label className="field-label" htmlFor="copy-field">{label}</label>
+      <label className="field-label" htmlFor={id}>{label}</label>
       <div className="flex gap-2">
-        <input id="copy-field" className="input" readOnly value={value} onFocus={(e) => e.currentTarget.select()} />
+        <input id={id} className="input" readOnly value={value} onFocus={(e) => e.currentTarget.select()} />
         <button
           type="button"
           className="btn btn-tinted"

@@ -7,7 +7,7 @@ const browser = await chromium.launch();
 async function render(size, out, { padded = false } = {}) {
   const page = await browser.newPage({ viewport: { width: size, height: size }, deviceScaleFactor: 1 });
   const inner = padded ? `<div style="position:absolute;inset:${size * 0.1}px">${svg.replace("<svg ", `<svg width="${size * 0.8}" height="${size * 0.8}" `)}</div>` : svg.replace("<svg ", `<svg width="${size}" height="${size}" `);
-  await page.setContent(`<body style="margin:0;background:${padded ? "#0b6b5d" : "transparent"};width:${size}px;height:${size}px;position:relative;overflow:hidden">${inner}</body>`);
+  await page.setContent(`<body style="margin:0;background:${padded ? "#ffd60a" : "transparent"};width:${size}px;height:${size}px;position:relative;overflow:hidden">${inner}</body>`);
   writeFileSync(out, await page.screenshot({ omitBackground: !padded, type: "png" }));
   await page.close();
 }

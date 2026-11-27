@@ -99,6 +99,7 @@ export async function acceptInvite(
       await saveProfile(tx as never, t.id, membershipId, input.profile, { ...DEFAULT_VISIBILITY, ...input.visibility });
       await tx.insert(schema.notificationPreferences).values({ membershipId, tenantId: t.id }).onConflictDoNothing();
     }
+    if (inv.eventId) await tx.insert(schema.eventInvitees).values({ eventId: inv.eventId, membershipId, tenantId: t.id }).onConflictDoNothing();
     await tx.update(schema.invites).set({ usedAt: new Date(), usedByUserId: user.id, prefill: null }).where(eq(schema.invites.id, inv.id));
     await audit(tx as never, { tenantId: t.id, actor: membershipId, action: "invite.accepted", targetType: "invite", targetId: inv.id, metadata: { bound, consent: "v1" } });
     return { userId: user.id, email, tenantSlug: t.slug, tenantName: t.name, bound };

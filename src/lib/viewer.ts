@@ -23,7 +23,7 @@ export async function viewerTimeZone(fallbacks: (string | null | undefined)[] = 
   const tz = c ? decodeURIComponent(c) : null;
   if (isValidTimeZone(tz)) return tz;
   for (const f of fallbacks) if (isValidTimeZone(f)) return f;
-  return "UTC";
+  return "Asia/Kuala_Lumpur";
 }
 
 import { formatDate, formatEventTime, formatTime } from "@/lib/time";
