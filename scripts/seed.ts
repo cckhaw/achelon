@@ -38,6 +38,18 @@ await db.transaction(async (tx) => {
     await tx.insert(schema.fieldVisibility).values(Object.entries(vis).map(([f, v]) => ({ membershipId: m.id, tenantId: tenant.id, fieldName: f, visibleTo: v })));
     await tx.insert(schema.notificationPreferences).values({ membershipId: m.id, tenantId: tenant.id });
   }
+  const [owner] = await tx.select({ id: schema.memberships.id }).from(schema.memberships).where(eq(schema.memberships.tenantId, tenant.id)).limit(1);
+  const existing = await tx.select({ id: schema.events.id }).from(schema.events).where(eq(schema.events.tenantId, tenant.id)).limit(1);
+  if (!existing.length) {
+    const at = (days: number, hour: number) => new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate() + days, hour));
+    await tx.insert(schema.events).values([
+      { tenantId: tenant.id, createdByMembershipId: owner.id, type: "een_ride", title: "Sunday sunrise ride", description: "Easy social pace along the coast. **Coffee after.** No one gets dropped.", startsAt: at(3, 22), endsAt: at(4, 1), timezone: "Asia/Singapore", locationName: "East Coast Park, Area C", locationAddress: "East Coast Park Service Rd, Singapore", locationLat: 1.3011, locationLng: 103.9122, distanceKm: "60.0", paceOrLevelNote: "Social, 28 km/h", capacity: 12, visibility: "all_members", status: "published" },
+      { tenantId: tenant.id, createdByMembershipId: owner.id, type: "een_run", title: "Tuesday track session", startsAt: at(6, 11), timezone: "Asia/Singapore", locationName: "Kallang Practice Track", capacity: 6, visibility: "all_members", status: "published" },
+      { tenantId: tenant.id, createdByMembershipId: owner.id, type: "een_social", title: "Founders' dinner", startsAt: at(14, 11), timezone: "Asia/Singapore", locationName: "Private room, Dempsey", visibility: "founding_only", attendeeVisibility: "counts", status: "published" },
+      { tenantId: tenant.id, createdByMembershipId: owner.id, type: "external_race", title: "Sentosa Half Marathon", startsAt: at(45, 21), timezone: "Asia/Singapore", locationName: "Sentosa", externalUrl: "https://example.test/race", status: "published" },
+      { tenantId: tenant.id, createdByMembershipId: owner.id, type: "een_ride", title: "Draft: Malaysia border ride", startsAt: at(30, 22), timezone: "Asia/Singapore", status: "draft" },
+    ]);
+  }
   console.log(`Seeded /${SLUG} with ${people.length} fictional people. Sign in as owen.owner@example.test (the magic link is printed to the server console).`);
 });
 await closePools();

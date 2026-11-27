@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { cleanup, createRun, type Run } from "./fixtures";
+import { cleanup, createEventDirect, createRun, type Run } from "./fixtures";
 import { signInAs, watchErrors } from "./helpers";
 
 let run: Run;
@@ -77,7 +77,8 @@ test("login is neutral, member area is private, admin creates an invite that a n
 
 test("main screens have no serious accessibility violations", async ({ page }) => {
   await signInAs(page, run.adminEmail);
-  for (const path of ["", "/directory", "/me", "/me/profile", "/settings", "/admin", "/admin/members", "/admin/invites", "/admin/settings"]) {
+  const ev = await createEventDirect(run);
+  for (const path of ["", "/directory", "/me", "/me/profile", "/settings", "/events", `/events/${ev}`, "/calendar", "/calendar?view=agenda", "/admin", "/admin/members", "/admin/invites", "/admin/settings", "/admin/events", "/admin/events/new", `/admin/events/${ev}`, "/admin/import", "/admin/audit"]) {
     await page.goto(`/${run.slug}${path}`);
     await page.waitForLoadState("networkidle");
     const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();

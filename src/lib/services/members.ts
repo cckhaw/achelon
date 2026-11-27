@@ -1,4 +1,5 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { cancelUpcomingSignups } from "./signups";
 import { schema, type Tx } from "@/lib/db";
 import { audit } from "@/lib/audit";
 import { canAssignRole, canManageMember } from "@/lib/rbac";
@@ -41,11 +42,7 @@ export async function setStatus(tx: Tx, actor: Actor, id: string, status: Extrac
   if (m.role === "owner" && status !== "active") await assertAnotherOwner(tx, actor.tenantId, id);
   await tx.update(schema.memberships).set({ status, leftAt: status === "left" ? new Date() : null, joinedAt: status === "active" && !m.joinedAt ? new Date() : m.joinedAt }).where(eq(schema.memberships.id, id));
   // Leaving members free their capacity: cancel upcoming sign-ups so spots can be promoted.
-  if (status === "left" || status === "paused") {
-    await tx.execute(sql`UPDATE event_signups SET status = 'cancelled', position = NULL, updated_at = now()
-      WHERE membership_id = ${id} AND status IN ('going','waitlist','maybe')
-        AND event_id IN (SELECT id FROM events WHERE starts_at > now())`);
-  }
+  if (status === "left" || status === "paused") await cancelUpcomingSignups(tx, id);
   await audit(tx, { tenantId: actor.tenantId, actor: actor.membershipId, action: status === "left" ? "member.removed" : status === "paused" ? "member.paused" : "member.resumed", targetType: "membership", targetId: id });
 }
 

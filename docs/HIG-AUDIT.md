@@ -44,3 +44,17 @@ Method: the `hig-compliance-auditor` skill (Apple Human Interface Guidelines kno
 - **Pull-to-refresh**: not in Phase 1 (no live lists yet). Added in Phase 2 for Home / Events / Calendar.
 - **Large-text (200%) and dark-mode screenshot checks**: automated in the Phase 5 e2e suite.
 - **In-app privacy notice page**: arrives with `docs/PRIVACY.md` content in Phase 5; the invite screen already carries the summary.
+
+## Phase 2 report (Events, calendar, iCal)
+
+Re-checked against the same HIG knowledge base, plus axe-core on 18 screens × 2 viewports (now including events, event detail, calendar month/agenda, admin events).
+
+| # | Sev | Finding | HIG / WCAG reference | Fix |
+|---|---|---|---|---|
+| 12 | High | Text links had no underline (Tailwind reset), distinguished by colour only; axe `link-in-text-block` | Colour alone must not carry meaning; links ≥3:1 vs body or underlined | Underline restored for plain text links |
+| 13 | Med | Selected segment was darker than its track in Dark Mode (reverse of iOS) | Consistency with system segmented controls | `--seg-on` token (white / `#636366`) |
+| 14 | Low | No pull-to-refresh on live lists (iOS home-screen apps have none) | Pull to refresh where it makes sense | `PullToRefresh` (touch devices only, top of page only, never inside a dialog) |
+
+Passed in this phase: RSVP choices are real buttons with `aria-pressed`, ≥44pt, with a check mark (not colour-only); calendar days are ≥44pt links with full spoken labels ("Monday 30 November, 2 items"), today is a filled circle and races use a square dot (shape, not just colour); dates/times use native `datetime-local` pickers and `Intl` (viewer zone first, event-local beside it); destructive actions (cancel event, remove attendee) are separated and confirmed; maps link opens Apple Maps.
+
+Still open (Phase 5): 200% text-size and dark-mode screenshot checks of the main screens; final audit of the whole app.

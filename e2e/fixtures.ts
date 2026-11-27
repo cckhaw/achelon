@@ -27,6 +27,8 @@ export async function createRun(): Promise<Run> {
   const slug = `e2e-${id}`;
   const p = pool();
   try {
+    // Local runs share one client IP and would trip the (intentionally strict) rate limits; never touch a remote database.
+    if (/@(localhost|127\.0\.0\.1)[:/]/.test(ownerUrl)) await p.query("DELETE FROM rate_limits");
     const t = await p.query("INSERT INTO tenants (slug, name, settings) VALUES ($1, $2, $3) RETURNING id", [slug, `E2E Club ${id}`, JSON.stringify({ defaultTimezone: "Europe/London" })]);
     const tenantId = t.rows[0].id as string;
     const adminEmail = `admin-${id}@e2e.invalid`;
@@ -62,6 +64,17 @@ export async function cleanup(run: Run) {
     await p.query("DELETE FROM users WHERE email LIKE $1", [`newbie-${run.id}%@e2e.invalid`]);
     await p.query("DELETE FROM tenants WHERE id = $1", [run.tenantId]);
     await p.query("DELETE FROM email_outbox WHERE to_email LIKE $1", [`%${run.id}%@e2e.invalid`]);
+  } finally {
+    await p.end();
+  }
+}
+
+/** Insert a published event straight into the DB (for screens that need one without driving the UI). */
+export async function createEventDirect(run: Run, title = "Fixture ride"): Promise<string> {
+  const p = pool();
+  try {
+    const r = await p.query("INSERT INTO events (tenant_id, type, title, description, starts_at, timezone, location_name, capacity, status) VALUES ($1,'een_ride',$2,'Easy pace. **Coffee after.**', now() + interval '5 days', 'Europe/London', 'Hyde Park Corner', 10, 'published') RETURNING id", [run.tenantId, title]);
+    return r.rows[0].id as string;
   } finally {
     await p.end();
   }

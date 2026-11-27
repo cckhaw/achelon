@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export interface NavItem { href: string; label: string; icon: IconName }
 
@@ -30,6 +31,7 @@ export function AppShell({ root, tabs, extra, tenantName, children, navLabel, br
           </Link>
         ))}
       </nav>
+      <PullToRefresh />
       <main id="main" className="shell-main" tabIndex={-1}>
         <div className="shell-inner">{children}</div>
       </main>

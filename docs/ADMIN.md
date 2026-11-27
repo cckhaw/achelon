@@ -22,8 +22,20 @@
 ## People
 Members screen: pause (keeps data, blocks access), reactivate, remove (access ends now, data erased after 30 days), change role. Removing frees their upcoming spots and promotes waitlists.
 
-## Events, races, announcements, applications, insight
-Added with Phases 2 to 5; this document is extended as they land.
+## Events
+**Admin → Events → New event.** Choose the type, title, time zone (the event's own, e.g. Asia/Singapore; members see times in their own zone with the event-local time beside it), start, optional end, place, route link, distance, pace note.
+- **Capacity**: leave empty for unlimited. When full, extra people join a **waitlist** in order; when someone leaves (or you raise the capacity, or remove them) the next person is promoted automatically. Pausing/removing a member also frees their seats.
+- **Sign-up cutoff**: after it, people can still leave but not join.
+- **Who can see it**: all members, founding members only, or an invite list (guests only ever see events they are on the list for).
+- **Attendee list**: "Show names" or "Counts only". Admins always see names.
+- **Draft** events are visible to admins only; **Publish** makes them visible. **Cancel** keeps the sign-ups and marks the event cancelled everywhere (including calendar feeds).
+- On an event's admin page: attendees with Remove and "Move to going" (overrides capacity; audited), and **Download attendee list (CSV)** (audited).
+
+## Calendar
+Every member has one secret iCal link (Calendar → Subscribe). It is shown once when created (only its hash is stored); making a new one kills the old one, and it can be switched off. The feed includes every event that member may see plus their visible race declarations, never drafts.
+
+## Races, announcements, applications, insight
+Added with Phases 3 to 5; this document is extended as they land.
 
 ## Good habits
 - Check the **Audit log** after bulk operations.

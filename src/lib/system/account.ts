@@ -2,6 +2,7 @@ import "server-only";
 import { and, eq, inArray, lt, sql } from "drizzle-orm";
 import { sysDb, sysTx, schema } from "@/lib/db";
 import { audit } from "@/lib/audit";
+import { cancelUpcomingSignups } from "@/lib/services/signups";
 
 /** Everything we hold about one user across communities (self-service export). Owner connection, explicit filters. */
 export async function exportUserData(userId: string) {
@@ -38,9 +39,7 @@ export async function deleteAccount(userId: string) {
     await tx.update(schema.users).set({ deletedAt: new Date() }).where(eq(schema.users.id, userId));
     await tx.update(schema.memberships).set({ status: "left", leftAt: new Date() }).where(and(eq(schema.memberships.userId, userId), sql`status <> 'left'`));
     if (mems.length) {
-      await tx.execute(sql`UPDATE event_signups SET status = 'cancelled', position = NULL, updated_at = now()
-        WHERE membership_id = ANY(${mems.map((m) => m.id)}::uuid[]) AND status IN ('going','waitlist','maybe')
-          AND event_id IN (SELECT id FROM events WHERE starts_at > now())`);
+      for (const m of mems) await cancelUpcomingSignups(tx, m.id);
       await tx.delete(schema.stravaConnections).where(inArray(schema.stravaConnections.membershipId, mems.map((m) => m.id)));
     }
     await tx.delete(schema.sessions).where(eq(schema.sessions.userId, userId));

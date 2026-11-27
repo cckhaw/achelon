@@ -45,3 +45,10 @@ Format: **D-n** decision — why. Newest at the bottom of each section.
 - **D-34 Imports create email-bound invites, not memberships.** Imported people have not consented yet; their CRM details are held as `invites.prefill` (wiped on use) so the accept screen is pre-filled. Nobody is emailed until an admin sends from Invites.
 - **D-35 Sent essential mail is scrubbed.** When a real provider is configured, delivered sign-in/invite email bodies (which contain single-use links) are replaced with a stub in `email_outbox`.
 - **D-36 Active nav state is not colour-only** (weight + stroke), and the tab bar caps label growth like iOS does.
+
+## Added during Phase 2
+- **D-37 One lock, one transaction for sign-ups.** `rsvp()` locks the event row (`FOR UPDATE`), re-reads counts and applies `decideRsvp()`. A 12-way concurrent test proves capacity is never exceeded and waitlist positions are unique. Waitlist is strict FIFO (a free seat is never taken by someone who joined later).
+- **D-38 The iCal link is shown once.** Tokens are hashed at rest, so they cannot be re-displayed; "Subscribe" creates one (or a new one, killing the old) and the member can switch it off. The feed excludes drafts and includes cancelled events with `STATUS:CANCELLED` so calendars remove them.
+- **D-39 Calendar views bucket instants into the viewer's local day** (cookie zone → profile → community default), so an event at 06:00 Singapore appears on the right day for a viewer in London.
+- **D-40 Admin attendee override:** "Move to going" can exceed capacity (audited) for the cases where the organiser wants to squeeze someone in.
+- **D-41 CSV export neutralises spreadsheet formulas** (cells starting `= + - @` are prefixed), and every export is audited.

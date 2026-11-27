@@ -17,6 +17,9 @@ export default async function AdminHome({ params }: { params: Promise<{ tenant: 
         <Row href={`${b}/invites`} title="Invites" sub="Invite people and track status" />
         <Row href={`${b}/import`} title="Import" sub="Bring members over from a CSV" />
       </Group>
+      <Group title="Programme" id="programme">
+        <Row href={`${b}/events`} title="Events" sub="Create, publish, manage attendees" />
+      </Group>
       <Group title="Community" id="community">
         <Row href={`${b}/settings`} title="Settings" sub="Name, time zone, event types" />
         <Row href={`${b}/audit`} title="Audit log" sub="Who changed what" />
