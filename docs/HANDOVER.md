@@ -3,7 +3,7 @@
 Everything below is already built and tested. What remains are the account-level steps only you can do (secrets, DNS, repo visibility). Nothing here needs code changes.
 
 ## Status at handover
-- Phases 1 to 5 built; typecheck, lint, **170 unit/integration tests** and **34 browser tests** (iPhone + desktop) green locally; production build verified; Lighthouse mobile 94-99 / 100 / 100.
+- Phases 1 to 5 built; typecheck, lint, **170 unit/integration tests** and **38 browser tests** (iPhone + desktop) green locally; production build verified; Lighthouse mobile 94-99 / 100 / 100.
 - Vercel project **`achelon`** exists (team `cckhaw-5201`, project id `prj_Vsd9XaM3Jc2EeGVbLXi2zaaWnVsU`), Node 22, no Git integration (production deploys only through GitHub Actions), preview deployments off. Domain **achelon.khaw.cc** is attached and ownership-verified. Non-secret env vars set: `APP_URL`, `STRAVA_MODE=off`, `MAIL_FROM`.
 - **Not yet live**: there is no database, email key or DNS record yet (see checklist). Nothing was deployed, because an app without a database would only show errors.
 
