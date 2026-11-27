@@ -8,7 +8,7 @@ export function DeclareRaceForm({ slug, races }: { slug: string; races: { id: st
   const [state, action] = useActionState(declareRaceAction.bind(null, slug), undefined);
   const e = state?.fieldErrors ?? {};
   return (
-    <form action={action} className="grid gap-4" noValidate key={state?.ok ? "done" : "f"}>
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-4" noValidate key={state?.ok ? "done" : "f"}>
       {state?.ok ? <FormMessage state={state} /> : null}
       <Field label="Race" name="raceName" error={e.raceName}><input id="raceName" name="raceName" className="input" required maxLength={120} {...describedBy("raceName", e.raceName)} /></Field>
       <Field label="Date" name="raceDate" error={e.raceDate}><input id="raceDate" name="raceDate" type="date" className="input" required {...describedBy("raceDate", e.raceDate)} /></Field>
@@ -34,7 +34,7 @@ export function DeclareRaceForm({ slug, races }: { slug: string; races: { id: st
 export function JoinRaceButton({ slug, sourceId }: { slug: string; sourceId: string }) {
   const [state, action] = useActionState(joinRaceAction.bind(null, slug, sourceId), undefined);
   return (
-    <form action={action} className="grid gap-1">
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-1">
       <FormMessage state={state?.ok ? undefined : state} />
       <SubmitButton className="btn btn-tinted btn-sm" pendingLabel="Adding…">I&apos;m going too</SubmitButton>
     </form>
@@ -44,10 +44,10 @@ export function JoinRaceButton({ slug, sourceId }: { slug: string; sourceId: str
 export function MyRaceControls({ slug, id, visibleTo }: { slug: string; id: string; visibleTo: "nobody" | "members" }) {
   return (
     <div className="flex flex-wrap items-center justify-between" style={{ gap: "1.5rem", padding: "0 1rem 0.75rem" }}>
-      <form action={async () => { await raceVisibilityAction(slug, id, visibleTo === "members" ? "nobody" : "members"); }}>
+      <form onReset={(e) => e.preventDefault()} action={async () => { await raceVisibilityAction(slug, id, visibleTo === "members" ? "nobody" : "members"); }}>
         <button className="btn btn-tinted btn-sm">{visibleTo === "members" ? "Make private" : "Show to members"}</button>
       </form>
-      <form action={async () => { await removeRaceAction(slug, id); }} onSubmit={(e) => { if (!window.confirm("Remove this race?")) e.preventDefault(); }}>
+      <form onReset={(e) => e.preventDefault()} action={async () => { await removeRaceAction(slug, id); }} onSubmit={(e) => { if (!window.confirm("Remove this race?")) e.preventDefault(); }}>
         <button className="btn btn-danger btn-sm">Remove</button>
       </form>
     </div>

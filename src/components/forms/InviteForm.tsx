@@ -4,6 +4,7 @@ import { acceptInviteAction } from "@/app/invite/[token]/actions";
 import { Field, FormMessage, describedBy } from "@/components/ui";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ProfileFields, VisibilityPanel } from "./ProfileFields";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { DEFAULT_VISIBILITY } from "@/db/constants";
 
 export function InviteForm({ token, boundEmail, tenantName, prefill }: { token: string; boundEmail: string | null; tenantName: string; prefill: { name?: string; company?: string; jobTitle?: string; city?: string; country?: string } | null }) {
@@ -11,7 +12,7 @@ export function InviteForm({ token, boundEmail, tenantName, prefill }: { token: 
   if (state?.ok) return <p className="form-ok" role="status">{state.message}</p>;
   const errors = state?.fieldErrors ?? {};
   return (
-    <form action={action} className="grid gap-6" noValidate>
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-6" noValidate>
       {boundEmail ? (
         <Field label="Email" name="email-shown">
           <input id="email-shown" className="input" value={boundEmail} readOnly aria-readonly="true" />
@@ -21,6 +22,7 @@ export function InviteForm({ token, boundEmail, tenantName, prefill }: { token: 
           <input id="email" name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" required className="input" {...describedBy("email", errors.email, true)} />
         </Field>
       )}
+      {boundEmail ? <PasswordInput id="password" name="password" label="Choose a password" autoComplete="new-password" error={errors.password} hint="At least 10 characters. Use it with your email to sign in; you can also always use an emailed link." /> : null}
       <ProfileFields errors={errors} values={{ displayName: prefill?.name, company: prefill?.company, jobTitle: prefill?.jobTitle, city: prefill?.city, country: prefill?.country }} />
       <VisibilityPanel current={{}} defaults={DEFAULT_VISIBILITY} />
       <div>

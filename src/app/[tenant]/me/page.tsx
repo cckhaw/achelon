@@ -29,6 +29,7 @@ export default async function MePage({ params }: { params: Promise<{ tenant: str
       <Group>
         <Row href={`${base}/me/profile`} title="Profile and privacy" sub="What you share, and with whom" />
         {ctx.can("directory.view") ? <Row href={`${base}/members/${ctx.membership.id}`} title="How others see me" /> : null}
+        <Row href="/account/password" title="Password" sub={ctx.user.hasPassword ? "Change your password" : "Not set: you sign in by email link"} />
         <Row href={`${base}/settings`} title="Settings" sub="Email, connections, your data" />
       </Group>
       {ctx.can("races.view") || ctx.can("admin.access") ? (

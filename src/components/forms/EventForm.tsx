@@ -24,7 +24,7 @@ export function EventForm({ slug, eventId, values, allowedTypes, members, locked
     </Field>
   );
   return (
-    <form action={action} className="grid gap-5" noValidate>
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-5" noValidate>
       <Field label="Type" name="type" error={e.type}>
         <select id="type" name="type" className="select" defaultValue={values.type}>{allowedTypes.map((x) => <option key={x} value={x}>{t(`eventType.${x}` as MessageKey)}</option>)}</select>
       </Field>

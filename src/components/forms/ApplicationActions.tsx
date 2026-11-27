@@ -11,8 +11,8 @@ export function ApplicationActions({ slug, id, isMember }: { slug: string; id: s
     <div className="grid gap-2" style={{ padding: "0 1rem 0.75rem" }}>
       <FormMessage state={a ?? d} />
       <div className="flex flex-wrap items-center justify-between" style={{ gap: "1.5rem" }}>
-        <form action={approve}><SubmitButton className="btn btn-sm" pendingLabel="Approving…">{isMember ? "Approve anyway" : "Approve and invite"}</SubmitButton></form>
-        <form action={decline} onSubmit={(e) => { if (!window.confirm("Decline this nomination?")) e.preventDefault(); }}><SubmitButton className="btn btn-danger btn-sm" pendingLabel="Declining…">Decline</SubmitButton></form>
+        <form onReset={(e) => e.preventDefault()} action={approve}><SubmitButton className="btn btn-sm" pendingLabel="Approving…">{isMember ? "Approve anyway" : "Approve and invite"}</SubmitButton></form>
+        <form onReset={(e) => e.preventDefault()} action={decline} onSubmit={(e) => { if (!window.confirm("Decline this nomination?")) e.preventDefault(); }}><SubmitButton className="btn btn-danger btn-sm" pendingLabel="Declining…">Decline</SubmitButton></form>
       </div>
     </div>
   );

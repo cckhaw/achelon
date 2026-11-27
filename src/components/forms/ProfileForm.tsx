@@ -9,7 +9,7 @@ import { DEFAULT_VISIBILITY, type VisibilityField, type VisibleTo } from "@/db/c
 export function ProfileForm({ slug, values, visibility }: { slug: string; values: ProfileDefaults; visibility: Partial<Record<VisibilityField, VisibleTo>> }) {
   const [state, action] = useActionState(saveProfileAction.bind(null, slug), undefined);
   return (
-    <form action={action} className="grid gap-6" noValidate>
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-6" noValidate>
       <ProfileFields values={values} errors={state?.fieldErrors} />
       <VisibilityPanel current={visibility} defaults={DEFAULT_VISIBILITY} />
       <FormMessage state={state} />

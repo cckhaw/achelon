@@ -40,7 +40,7 @@ export function StravaPanel({ slug, view }: { slug: string; view: StravaView }) 
       ) : (
         <>
           <Row title="Connected" sub={view.connected.lastSync ? `Last synced ${view.connected.lastSync}` : "Not synced yet"} value={view.connected.derivedLevel ? `Level: ${view.connected.derivedLevel}` : "Level: not enough data"} />
-          <form action={share} style={{ padding: 0 }}>
+          <form onReset={(e) => e.preventDefault()} action={share} style={{ padding: 0 }}>
             <label className="row">
               <span className="row-main"><span className="row-title block">Show my results on event leaderboards</span></span>
               <input type="checkbox" role="switch" className="switch" name="share" defaultChecked={view.connected.shareResults} onChange={(e) => e.currentTarget.form?.requestSubmit()} />
@@ -48,8 +48,8 @@ export function StravaPanel({ slug, view }: { slug: string; view: StravaView }) 
           </form>
           <div style={{ padding: "0.75rem 1rem" }} className="grid gap-3">
             <FormMessage state={synced ?? shared ?? gone} />
-            <form action={sync}><SubmitButton className="btn btn-tinted" pendingLabel="Syncing…">Sync now</SubmitButton></form>
-            <form action={disconnect} onSubmit={(e) => { if (!window.confirm("Disconnect Strava? Your tokens, event results and badge are erased.")) e.preventDefault(); }} style={{ marginTop: "0.75rem" }}>
+            <form onReset={(e) => e.preventDefault()} action={sync}><SubmitButton className="btn btn-tinted" pendingLabel="Syncing…">Sync now</SubmitButton></form>
+            <form onReset={(e) => e.preventDefault()} action={disconnect} onSubmit={(e) => { if (!window.confirm("Disconnect Strava? Your tokens, event results and badge are erased.")) e.preventDefault(); }} style={{ marginTop: "0.75rem" }}>
               <SubmitButton className="btn btn-danger" pendingLabel="Disconnecting…">Disconnect Strava</SubmitButton>
             </form>
           </div>

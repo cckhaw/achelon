@@ -15,6 +15,10 @@ export const RULES = {
   inviteView: { limit: 40, windowSeconds: 600 },
   inviteAccept: { limit: 10, windowSeconds: 900 },
   calendarIp: { limit: 120, windowSeconds: 600 },
+  passwordIp: { limit: 30, windowSeconds: 900 },
+  /** Counts failures only, so a stranger can't lock someone out by merely trying; correct logins never count. */
+  passwordFail: { limit: 8, windowSeconds: 900 },
+  passwordChange: { limit: 10, windowSeconds: 900 },
 } satisfies Record<string, RateRule>;
 
 /** Vercel sets x-forwarded-for itself, so the first hop is trustworthy there. */
@@ -39,4 +43,17 @@ export async function hit(scope: string, id: string, rule: RateRule): Promise<bo
     })
     .returning({ count: schema.rateLimits.count });
   return row.count <= rule.limit;
+}
+
+/** Read-only: is this bucket already over its limit? (Used for failure-only counters.) */
+export async function isLimited(scope: string, id: string, rule: RateRule): Promise<boolean> {
+  const key = bucketKey(scope, id);
+  const [row] = await sysDb().select().from(schema.rateLimits).where(sql`${schema.rateLimits.key} = ${key}`);
+  if (!row) return false;
+  if (Date.now() - row.windowStart.getTime() >= rule.windowSeconds * 1000) return false;
+  return row.count >= rule.limit;
+}
+
+export async function clearLimit(scope: string, id: string): Promise<void> {
+  await sysDb().delete(schema.rateLimits).where(sql`${schema.rateLimits.key} = ${bucketKey(scope, id)}`);
 }

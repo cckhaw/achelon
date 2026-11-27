@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { sysDb, sysTx, schema } from "@/lib/db";
 import { sha256Hex, randomToken } from "@/lib/crypto";
 import { audit } from "@/lib/audit";
-import { issueLoginToken } from "@/lib/system/auth";
+import { hashForNewAccount, issueLoginToken } from "@/lib/system/auth";
 import { saveProfile } from "@/lib/services/profiles";
 import type { ProfileInput } from "@/lib/validation";
 import type { VisibilitySettings } from "@/lib/visibility";
@@ -50,7 +50,7 @@ export type AcceptResult =
  */
 export async function acceptInvite(
   raw: string,
-  input: { email: string; profile: ProfileInput; visibility: VisibilitySettings },
+  input: { email: string; profile: ProfileInput; visibility: VisibilitySettings; password?: string },
 ): Promise<AcceptResult> {
   const result = await sysTx(async (tx) => {
     const [row] = await tx
@@ -67,7 +67,10 @@ export async function acceptInvite(
 
     let [user] = await tx.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
     if (user?.deletedAt) return null;
-    if (!user) [user] = await tx.insert(schema.users).values({ email }).returning();
+    // A password is only accepted for a NEW account on an email-bound invite (the token already proves the mailbox). For
+    // link-only invites anyone could type any address, so no password is stored until the email is confirmed (D-54), and an
+    // existing account's password is never touched (nor is its existence revealed).
+    if (!user) [user] = await tx.insert(schema.users).values({ email, ...(bound && input.password ? { passwordHash: await hashForNewAccount(input.password), passwordSetAt: new Date() } : {}) }).returning();
 
     const [existing] = await tx.select().from(schema.memberships)
       .where(and(eq(schema.memberships.tenantId, t.id), eq(schema.memberships.userId, user.id))).limit(1);

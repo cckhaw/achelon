@@ -16,7 +16,7 @@ export function RsvpForm({ slug, eventId, mine, waitRank, full, closedReason }: 
   const summary = mine === "going" ? "You're going." : mine === "waitlist" ? `You're on the waitlist${waitRank ? `, number ${waitRank}` : ""}. We'll email you if a spot opens.` : mine === "maybe" ? "You've said maybe." : mine === "declined" ? "You've said you can't make it." : null;
 
   return (
-    <form action={action} className="grid gap-3">
+    <form onReset={(e) => e.preventDefault()} action={action} className="grid gap-3">
       {summary ? <p className="t-sub" role="status">{summary}</p> : null}
       {closedReason && !leaving ? <p className="form-error" role="status">{closedReason}</p> : (
         <div className="segmented" role="group" aria-label="RSVP">
