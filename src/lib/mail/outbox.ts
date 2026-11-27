@@ -68,7 +68,9 @@ export async function flush(limit = 25): Promise<{ sent: number; failed: number 
   for (const m of claimed) {
     try {
       await deliver(m);
-      await db.update(schema.emailOutbox).set({ status: "sent", sentAt: new Date(), error: null }).where(eq(schema.emailOutbox.id, m.id));
+      // With a real provider, sign-in/invite bodies hold single-use links: don't keep them once delivered.
+      const scrub = env().RESEND_API_KEY && m.category === "essential" ? { bodyText: "[delivered]", bodyHtml: null } : {};
+      await db.update(schema.emailOutbox).set({ status: "sent", sentAt: new Date(), error: null, ...scrub }).where(eq(schema.emailOutbox.id, m.id));
       sent++;
     } catch (e) {
       const final = m.attempts >= 5;

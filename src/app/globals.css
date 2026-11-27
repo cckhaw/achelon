@@ -1,0 +1,290 @@
+@import "tailwindcss";
+
+/*
+ * Achelon design system. Calm, uncluttered, iOS-native in feel (HIG): system fonts, semantic colours,
+ * inset-grouped lists, bottom tab bar on phones, sidebar on wide screens. Everything is in rem so it follows the
+ * user's text-size setting; nothing essential is truncated at large sizes.
+ */
+:root {
+  color-scheme: light dark;
+  --bg: #f2f2f7;
+  --surface: #ffffff;
+  --surface-2: #f7f7fa;
+  --fg: #1c1c1e;
+  --muted: #5c5c63;            /* 6.4:1 on white, 5.6:1 on --bg */
+  --line: rgb(60 60 67 / 0.18);
+  --line-strong: #8a8a90;      /* input borders: 3.4:1 (WCAG 1.4.11) */
+  --tint: #0b6b5d;             /* club green: 6.3:1 on white */
+  --tint-soft: rgb(11 107 93 / 0.1);
+  --on-tint: #ffffff;
+  --danger: #c4251b;           /* 5.7:1 on white */
+  --danger-soft: rgb(196 37 27 / 0.09);
+  --warn: #8a5a00;
+  --warn-soft: rgb(176 112 0 / 0.12);
+  --ok: #17703a;
+  --mat: rgb(249 249 251 / 0.78);
+  --mat-edge: rgb(60 60 67 / 0.16);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  --tab-h: 3.25rem;
+  --radius: 0.875rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --surface-2: #232326;
+    --fg: #f5f5f7;
+    --muted: #a3a3aa;           /* 7.6:1 on --surface */
+    --line: rgb(84 84 88 / 0.55);
+    --line-strong: #7c7c82;
+    --tint: #45d1b6;            /* 9.9:1 on --surface */
+    --tint-soft: rgb(69 209 182 / 0.14);
+    --on-tint: #03231d;
+    --danger: #ff6f66;
+    --danger-soft: rgb(255 111 102 / 0.14);
+    --warn: #ffbf47;
+    --warn-soft: rgb(255 191 71 / 0.14);
+    --ok: #5fd68a;
+    --mat: rgb(28 28 30 / 0.76);
+    --mat-edge: rgb(84 84 88 / 0.5);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root { --mat: var(--surface); }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-tint: var(--tint);
+  --color-tint-soft: var(--tint-soft);
+  --color-on-tint: var(--on-tint);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-ok: var(--ok);
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius-card: var(--radius);
+}
+
+/* Dynamic Type: on iOS, 1rem tracks the user's preferred body size. Elsewhere it is the browser default. */
+html { font-size: 100%; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+@supports (font: -apple-system-body) {
+  html { font: -apple-system-body; }
+}
+html, body { background: var(--bg); color: var(--fg); }
+body {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.4;
+  /* Fixed per Apple HIG: SF Pro Text needs -0.43px tracking at 17pt when set outside native text APIs (~-0.025em). */
+  letter-spacing: -0.025em;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+  min-height: 100dvh;
+}
+a { color: var(--tint); text-underline-offset: 0.18em; }
+:focus-visible { outline: 3px solid var(--tint); outline-offset: 2px; border-radius: 0.5rem; }
+::selection { background: var(--tint-soft); }
+img { max-width: 100%; }
+
+/* No hover-only interactions anywhere; hover only refines. Tap highlight is replaced by an explicit pressed state. */
+* { -webkit-tap-highlight-color: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+
+/* ───────── Type scale (rem) ───────── */
+.t-large { font-size: 2.125rem; line-height: 1.12; font-weight: 700; letter-spacing: -0.03em; }
+.t-title { font-size: 1.375rem; line-height: 1.2; font-weight: 700; letter-spacing: -0.012em; }
+.t-headline { font-size: 1.0625rem; line-height: 1.3; font-weight: 600; }
+.t-sub { font-size: 0.9375rem; line-height: 1.35; }
+.t-foot { font-size: 0.8125rem; line-height: 1.35; }
+.t-caps { font-size: 0.8125rem; line-height: 1.2; letter-spacing: 0.02em; /* caps keep positive tracking */ text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.muted { color: var(--muted); }
+
+/* ───────── Layout shell ───────── */
+.shell { min-height: 100dvh; }
+.shell-main {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 1.5rem);
+  max-width: 44rem;
+  margin: 0 auto;
+}
+.tabbar {
+  position: fixed; inset: auto 0 0 0; z-index: 30;
+  display: flex; justify-content: space-around;
+  padding: 0.25rem max(0.25rem, env(safe-area-inset-left)) env(safe-area-inset-bottom) max(0.25rem, env(safe-area-inset-right));
+  background: var(--mat); border-top: 0.5px solid var(--mat-edge);
+  -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+}
+.tab {
+  flex: 1; min-width: 0; min-height: 2.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.125rem;
+  padding: 0.3rem 0.25rem; font-size: min(0.6875rem, 13px); line-height: 1.1; font-weight: 500; color: var(--muted); text-decoration: none; border-radius: 0.75rem;
+}
+/* Active tab is not colour-only: heavier label and thicker icon stroke as well. */
+.tab[aria-current="page"] { color: var(--tint); font-weight: 700; }
+.tab[aria-current="page"] svg, .side-link[aria-current="page"] svg { stroke-width: 2.4; }
+.tab svg { width: min(1.5rem, 30px); height: min(1.5rem, 30px); }
+.sidebar { display: none; }
+@media (min-width: 48rem) {
+  .tabbar { display: none; }
+  .sidebar {
+    display: flex; flex-direction: column; gap: 0.25rem; position: fixed; inset: 0 auto 0 0; width: 16rem; z-index: 20;
+    padding: calc(1.25rem + env(safe-area-inset-top)) 0.75rem 1rem max(0.75rem, env(safe-area-inset-left)); overflow-y: auto;
+    background: var(--mat); border-right: 0.5px solid var(--mat-edge); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+  }
+  .shell-main { margin-left: 16rem; max-width: none; padding-bottom: 3rem; padding-left: 2rem; padding-right: 2rem; }
+  .shell-inner { max-width: 52rem; margin: 0 auto; }
+}
+@media (min-width: 75rem) { .shell-main { margin-left: 16rem; } }
+.side-link {
+  display: flex; align-items: center; gap: 0.75rem; min-height: 2.75rem; padding: 0.5rem 0.75rem; border-radius: 0.75rem;
+  color: var(--fg); text-decoration: none; font-weight: 500;
+}
+.side-link svg { width: 1.375rem; height: 1.375rem; color: var(--muted); flex: none; }
+.side-link[aria-current="page"] { background: var(--tint-soft); color: var(--tint); font-weight: 700; }
+.side-link[aria-current="page"] svg { color: var(--tint); }
+.side-link:active { opacity: 0.7; }
+
+/* Navigation bar with large title: the compact title fades in once the large one scrolls away. */
+.navbar {
+  position: sticky; top: 0; z-index: 20; margin: 0 calc(-1 * max(1rem, env(safe-area-inset-left)));
+  padding: env(safe-area-inset-top) max(1rem, env(safe-area-inset-right)) 0 max(1rem, env(safe-area-inset-left));
+  min-height: calc(2.75rem + env(safe-area-inset-top));
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  background: transparent; border-bottom: 0.5px solid transparent; transition: background 0.2s, border-color 0.2s;
+}
+.navbar[data-scrolled="true"] { background: var(--mat); border-bottom-color: var(--mat-edge); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); }
+.navbar-title { font-weight: 600; opacity: 0; transition: opacity 0.2s; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.navbar[data-scrolled="true"] .navbar-title { opacity: 1; }
+.large-title-wrap { padding: 0.25rem 0 1rem; }
+
+/* ───────── Surfaces & lists (inset grouped) ───────── */
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); }
+.group { background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.group > * + * { border-top: 0.5px solid var(--line); }
+.group-title { margin: 1.5rem 0.25rem 0.5rem; }
+.group-foot { margin: 0.5rem 0.25rem 0; }
+.row {
+  display: flex; align-items: center; gap: 0.75rem; min-height: 2.75rem; padding: 0.6rem 1rem; color: var(--fg); text-decoration: none; width: 100%;
+  background: transparent; border: 0; text-align: left; font: inherit;
+}
+a.row:active, button.row:active { background: var(--surface-2); }
+.row-main { flex: 1; min-width: 0; }
+.row-title { font-weight: 500; overflow-wrap: anywhere; }
+.row-sub { color: var(--muted); font-size: 0.875rem; overflow-wrap: anywhere; }
+.row-value { color: var(--muted); text-align: right; }
+.disclosure { width: 1rem; height: 1rem; color: var(--muted); opacity: 0.7; flex: none; }
+
+/* ───────── Controls ───────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.75rem; padding: 0.5rem 1.25rem;
+  border-radius: 0.75rem; border: 0; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+  background: var(--tint); color: var(--on-tint); transition: opacity 0.12s, transform 0.12s;
+}
+.btn:active { opacity: 0.8; transform: scale(0.985); }
+.btn[disabled], .btn[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
+.btn-block { width: 100%; }
+.btn-tinted { background: var(--tint-soft); color: var(--tint); }
+.btn-plain { background: transparent; color: var(--tint); padding-inline: 0.5rem; }
+.btn-danger { background: var(--danger-soft); color: var(--danger); }
+.btn-sm { min-height: 2.75rem; padding-inline: 1rem; font-size: 0.9375rem; }
+.field-label { display: block; font-weight: 500; margin-bottom: 0.375rem; }
+.input, .select, .textarea {
+  width: 100%; min-height: 2.75rem; padding: 0.6rem 0.8rem; border-radius: 0.75rem; border: 1px solid var(--line-strong);
+  background: var(--surface); color: var(--fg); font: inherit; font-size: 1rem; /* >=16px: no iOS zoom */
+}
+.textarea { min-height: 6rem; resize: vertical; }
+.input[aria-invalid="true"], .select[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color: var(--danger); border-width: 2px; }
+.field-error { color: var(--danger); font-size: 0.875rem; margin-top: 0.375rem; }
+.field-hint { color: var(--muted); font-size: 0.875rem; margin-top: 0.375rem; }
+.form-error { background: var(--danger-soft); color: var(--danger); border-radius: 0.75rem; padding: 0.75rem 1rem; }
+.form-ok { background: var(--tint-soft); color: var(--tint); border-radius: 0.75rem; padding: 0.75rem 1rem; }
+
+/* Toggle switch (native checkbox, role=switch) */
+.switch { appearance: none; -webkit-appearance: none; width: 3.1rem; height: 1.9rem; border-radius: 999px; background: var(--line-strong); position: relative; flex: none; cursor: pointer; transition: background 0.2s; }
+.switch::after { content: ""; position: absolute; top: 0.15rem; left: 0.15rem; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / 0.3); transition: transform 0.2s; }
+.switch:checked { background: var(--tint); }
+.switch:checked::after { transform: translateX(1.2rem); }
+.switch:focus-visible { outline: 3px solid var(--tint); outline-offset: 2px; }
+
+/* Segmented control */
+.segmented { display: flex; gap: 0.125rem; padding: 0.125rem; border-radius: 0.6rem; background: var(--line); }
+.segmented > * { flex: 1; min-height: 2.75rem; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.9375rem; font-weight: 500; color: var(--fg); text-decoration: none; }
+.segmented > [aria-current="true"], .segmented > [aria-current="page"], .segmented > [data-active="true"] { background: var(--surface); box-shadow: 0 1px 3px rgb(0 0 0 / 0.15); font-weight: 600; }
+
+/* Chips (multi-select checkboxes) */
+.chip { position: relative; display: inline-flex; }
+.chip input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; width: 100%; height: 100%; }
+.chip span { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0.35rem 0.9rem; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); font-size: 0.9375rem; }
+.chip input:checked + span { background: var(--tint-soft); border-color: var(--tint); color: var(--tint); font-weight: 600; }
+.chip input:focus-visible + span { outline: 3px solid var(--tint); outline-offset: 2px; }
+
+.badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; background: var(--tint-soft); color: var(--tint); white-space: nowrap; }
+.badge-warn { background: var(--warn-soft); color: var(--warn); }
+.badge-muted { background: var(--line); color: var(--muted); }
+.badge-danger { background: var(--danger-soft); color: var(--danger); }
+.avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--tint-soft); color: var(--tint); font-weight: 600; flex: none; overflow: hidden; object-fit: cover; }
+
+/* Sheets: bottom sheet on phones, centred on wide screens. Native <dialog>: focus trap, Esc, inert backdrop. */
+dialog.sheet {
+  border: 0; padding: 0; background: var(--surface); color: var(--fg); width: 100%; max-width: 100%; max-height: 92dvh; margin: auto 0 0 0;
+  border-radius: 1.25rem 1.25rem 0 0; overflow: hidden; display: none; flex-direction: column;
+}
+dialog.sheet[open] { display: flex; animation: sheet-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1); }
+dialog.sheet::backdrop { background: rgb(0 0 0 / 0.4); }
+.sheet-grab { width: 2.25rem; height: 0.3rem; border-radius: 99px; background: var(--line-strong); opacity: 0.5; margin: 0.5rem auto 0; flex: none; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.5rem 0.75rem 0.5rem 1.25rem; flex: none; }
+.sheet-body { overflow-y: auto; padding: 0.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom)); }
+@media (min-width: 48rem) {
+  dialog.sheet { width: 34rem; margin: auto; border-radius: 1.25rem; }
+  .sheet-grab { display: none; }
+}
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+
+.spinner { width: 1.25rem; height: 1.25rem; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--tint); animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.skeleton { background: linear-gradient(90deg, var(--line), transparent, var(--line)); background-size: 200% 100%; border-radius: 0.5rem; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip-link { position: absolute; left: 0.5rem; top: -4rem; background: var(--tint); color: var(--on-tint); padding: 0.75rem 1rem; border-radius: 0.75rem; z-index: 100; }
+.skip-link:focus { top: calc(0.5rem + env(safe-area-inset-top)); }
+
+/* Standalone (installed) PWA: pad for the status bar / dynamic island. */
+.auth-wrap { min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: calc(2rem + env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right)) calc(2rem + env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left)); max-width: 28rem; margin: 0 auto; }
+
+/* Community accent presets (admin setting). Each pair is checked for >=4.5:1 on its surface. */
+[data-brand="blue"] { --tint: #0a58c9; --tint-soft: rgb(10 88 201 / 0.1); --on-tint: #fff; }
+[data-brand="violet"] { --tint: #6340c4; --tint-soft: rgb(99 64 196 / 0.1); --on-tint: #fff; }
+[data-brand="graphite"] { --tint: #3b3b41; --tint-soft: rgb(59 59 65 / 0.1); --on-tint: #fff; }
+@media (prefers-color-scheme: dark) {
+  [data-brand="blue"] { --tint: #6db3ff; --tint-soft: rgb(109 179 255 / 0.15); --on-tint: #021b3a; }
+  [data-brand="violet"] { --tint: #b9a2ff; --tint-soft: rgb(185 162 255 / 0.15); --on-tint: #1a0a45; }
+  [data-brand="graphite"] { --tint: #d4d4da; --tint-soft: rgb(212 212 218 / 0.14); --on-tint: #1c1c1e; }
+}
+
+/* Controls are not text: no selection highlight or iOS long-press callout on them (HIG interaction fidelity). */
+.btn, .tab, .side-link, .segmented > *, .chip span, .switch, .navbar button, .navbar a {
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+
+/* Increase Contrast: stronger separators, secondary text and control borders. */
+@media (prefers-contrast: more) {
+  :root { --muted: #3c3c43; --line: rgb(60 60 67 / 0.45); --line-strong: #5c5c63; --mat-edge: rgb(60 60 67 / 0.45); }
+}
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  :root { --muted: #d1d1d6; --line: rgb(235 235 245 / 0.45); --line-strong: #aeaeb2; --mat-edge: rgb(235 235 245 / 0.45); }
+}
+
+.back-link { display: inline-flex; align-items: center; gap: 0.125rem; min-height: 2.75rem; padding-right: 0.75rem; color: var(--tint); text-decoration: none; font-weight: 500; margin-left: -0.25rem; }
+.back-link svg { width: 1.25rem; height: 1.25rem; transform: scaleX(-1); }
+.back-link:active { opacity: 0.6; }

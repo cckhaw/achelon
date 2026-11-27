@@ -15,6 +15,7 @@ export interface InviteView {
   email: string | null;
   role: (typeof schema.invites.$inferSelect)["roleGranted"];
   inviter: string | null;
+  prefill: { name?: string; company?: string; jobTitle?: string; city?: string; country?: string } | null;
 }
 
 /** Looks an invite up by raw token. Returns null for unknown, used, revoked and expired alike (no oracle). */
@@ -33,7 +34,7 @@ export async function viewInvite(raw: string): Promise<InviteView | null> {
     const [p] = await db.select({ n: schema.memberProfiles.displayName }).from(schema.memberProfiles).where(eq(schema.memberProfiles.membershipId, by)).limit(1);
     inviter = p?.n ?? null;
   }
-  return { tenantName: r.t.name, tenantSlug: r.t.slug, email: r.inv.email ?? null, role: r.inv.roleGranted, inviter };
+  return { tenantName: r.t.name, tenantSlug: r.t.slug, email: r.inv.email ?? null, role: r.inv.roleGranted, inviter, prefill: r.inv.prefill ?? null };
 }
 
 export type AcceptResult =
@@ -95,7 +96,7 @@ export async function acceptInvite(
       await saveProfile(tx as never, t.id, membershipId, input.profile, { ...DEFAULT_VISIBILITY, ...input.visibility });
       await tx.insert(schema.notificationPreferences).values({ membershipId, tenantId: t.id }).onConflictDoNothing();
     }
-    await tx.update(schema.invites).set({ usedAt: new Date(), usedByUserId: user.id }).where(eq(schema.invites.id, inv.id));
+    await tx.update(schema.invites).set({ usedAt: new Date(), usedByUserId: user.id, prefill: null }).where(eq(schema.invites.id, inv.id));
     await audit(tx as never, { tenantId: t.id, actor: membershipId, action: "invite.accepted", targetType: "invite", targetId: inv.id, metadata: { bound, consent: "v1" } });
     return { userId: user.id, email, tenantSlug: t.slug, tenantName: t.name, bound };
   });

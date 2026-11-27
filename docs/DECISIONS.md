@@ -41,3 +41,7 @@ Format: **D-n** decision — why. Newest at the bottom of each section.
 - **D-30 Directory filtering happens in the app, after visibility projection** (`directoryFor` + `matchesFilters`). Filters and search can only match what the viewer can see, so "filter by city" can't reveal a hidden city. Fine up to a few thousand members per community; revisit with a SQL projection if one ever grows past that.
 - **D-31 Cross-tenant FK integrity is enforced by a trigger** (`enforce_same_tenant`), because Postgres FK checks bypass RLS. It re-reads the parent under RLS and rejects missing/foreign parents.
 - **D-32 Pausing or removing a member cancels their upcoming sign-ups** so capacity is freed and waitlists can promote.
+- **D-33 No service worker.** Authenticated pages are never cached on-device by us and iOS "Add to Home Screen" works from the manifest alone. Revisit only if offline is requested.
+- **D-34 Imports create email-bound invites, not memberships.** Imported people have not consented yet; their CRM details are held as `invites.prefill` (wiped on use) so the accept screen is pre-filled. Nobody is emailed until an admin sends from Invites.
+- **D-35 Sent essential mail is scrubbed.** When a real provider is configured, delivered sign-in/invite email bodies (which contain single-use links) are replaced with a stub in `email_outbox`.
+- **D-36 Active nav state is not colour-only** (weight + stroke), and the tab bar caps label growth like iOS does.

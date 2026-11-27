@@ -13,8 +13,10 @@
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/migrate.ts",
-    "db:seed": "tsx --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/seed.ts",
-    "db:bootstrap": "tsx --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/bootstrap.ts"
+    "db:seed": "tsx --conditions=react-server --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/seed.ts",
+    "db:bootstrap": "tsx --conditions=react-server --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/bootstrap.ts",
+    "prepare": "git config core.hooksPath .githooks || true",
+    "check:csv": "scripts/check-no-csv.sh all"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.4",
@@ -28,7 +30,8 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
+    "@axe-core/playwright": "^4.14.1",
+    "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "^4.3.5",
     "@types/node": "^22.0.0",
     "@types/papaparse": "^5.3.15",
@@ -44,5 +47,7 @@
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  }
 }

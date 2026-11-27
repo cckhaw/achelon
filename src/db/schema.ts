@@ -199,6 +199,9 @@ export const invites = pgTable(
     usedByUserId: uuid("used_by_user_id").references(() => users.id, { onDelete: "set null" }),
     revokedAt: tstz("revoked_at"),
     note: text("note"),
+    /** Profile details from a CSV import, shown prefilled on the accept screen and wiped on use (D-33). */
+    prefill: jsonb("prefill").$type<{ name?: string; company?: string; jobTitle?: string; city?: string; country?: string } | null>(),
+    emailedAt: tstz("emailed_at"),
     createdAt: tstz("created_at").notNull().defaultNow(),
   },
   (t) => [index("invites_tenant_idx").on(t.tenantId, t.createdAt)],

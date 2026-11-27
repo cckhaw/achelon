@@ -1,0 +1,118 @@
+name: Deploy production
+
+# Production only. Vercel's Git integration is disabled in vercel.json ("git.deploymentEnabled": false), so no preview
+# deployments are ever built. Every push to main verifies, migrates the database, deploys, smoke-tests the live app,
+# and deletes older deployments.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  VERCEL_CLI_VERSION: "52.0.0"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: achelon, POSTGRES_PASSWORD: achelon, POSTGRES_DB: achelon_test }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U achelon" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL_OWNER: postgresql://achelon:achelon@localhost:5432/achelon_test
+      TEST_DATABASE_URL: postgresql://achelon_app:achelon_app@localhost:5432/achelon_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: scripts/check-no-csv.sh all
+      - run: npm run lint && npm run typecheck
+      - run: npm test
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      deployment_url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+
+      - name: Check required secrets
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          DATABASE_URL_OWNER: ${{ secrets.DATABASE_URL_OWNER }}
+          APP_DB_PASSWORD: ${{ secrets.APP_DB_PASSWORD }}
+        run: |
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID DATABASE_URL_OWNER APP_DB_PASSWORD; do
+            if [ -z "$(printenv "$name")" ]; then echo "::error::Missing required secret: $name"; missing=1; fi
+          done
+          [ -z "${missing:-}" ]
+
+      - run: npm ci
+
+      # Schema first, so the new code never runs against an old schema. Idempotent; also (re)applies role grants.
+      - name: Apply database migrations
+        env:
+          DATABASE_URL_OWNER: ${{ secrets.DATABASE_URL_OWNER }}
+          APP_DB_PASSWORD: ${{ secrets.APP_DB_PASSWORD }}
+        run: npm run db:migrate
+
+      # Vercel builds remotely, so the build sees the sensitive Production env vars.
+      - name: Deploy to production
+        id: deploy
+        run: |
+          url=$(npx --yes vercel@${VERCEL_CLI_VERSION} deploy --prod --yes --token="${{ secrets.VERCEL_TOKEN }}")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed $url" >> "$GITHUB_STEP_SUMMARY"
+
+  smoke:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Health check
+        run: |
+          for i in $(seq 1 12); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' https://achelon.khaw.cc/api/health || true)
+            echo "health=$code"; [ "$code" = "200" ] && exit 0; sleep 10
+          done
+          exit 1
+      - name: End-to-end happy path against production
+        env:
+          E2E_BASE_URL: https://achelon.khaw.cc
+          DATABASE_URL_OWNER: ${{ secrets.DATABASE_URL_OWNER }}
+        run: npx playwright test e2e/happy-path.spec.ts
+
+  cleanup:
+    needs: smoke
+    permissions: {}
+    uses: ./.github/workflows/vercel-deployment-cleanup.yml
+    with:
+      confirm_cleanup: true
+    secrets:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
