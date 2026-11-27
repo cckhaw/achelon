@@ -1,0 +1,16 @@
+node_modules
+.next
+out
+.env
+.env.*
+!.env.example
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+coverage
+playwright-report
+test-results
+# Never commit real member data: CRM exports and any CSV in the import folder.
+import/*.csv
+import/**/*.csv
+*.crm.csv
