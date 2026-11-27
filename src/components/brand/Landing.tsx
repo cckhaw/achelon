@@ -140,7 +140,10 @@ export function Landing({ form, error }: { form: ReactNode; error?: boolean }) {
             ))}
             <div><h3>Legal</h3><ul><li><Link href="/terms">Terms of Service</Link></li><li><Link href="/privacy">Privacy Policy</Link></li></ul></div>
           </div>
-          <p className="b-legal">© {new Date().getFullYear()} Achelon. Invite-only and not indexed by search engines. One cookie, used only to keep you signed in. <Link href="/terms">Terms</Link> · <Link href="/privacy">Privacy</Link></p>
+          <div className="b-legal">
+            <p>© {new Date().getFullYear()} Achelon. Invite-only and not indexed by search engines. One cookie, used only to keep you signed in.</p>
+            <nav aria-label="Legal" className="b-legal-links"><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link></nav>
+          </div>
         </div>
       </footer>
     </div>

@@ -153,10 +153,11 @@ html:has(.brand), body:has(.brand) { background: #ffffff; }
 .b-foot { background: #0a0a0a; color: #ffffff; padding: clamp(2.5rem, 6vw, 4rem) 0 calc(2rem + env(safe-area-inset-bottom)); }
 .b-foot .b-logo { color: #ffffff; }
 .brand .b-foot a.b-logo { color: #ffffff; }
-.b-foot-grid { display: grid; gap: 2rem; margin-top: 2rem; }
-@media (min-width: 48rem) { .b-foot-grid { grid-template-columns: repeat(3, 1fr); } }
+.b-foot-grid { display: grid; gap: 1.5rem 1rem; grid-template-columns: repeat(2, 1fr); margin-top: 2rem; }
+.b-foot-grid > :last-child { grid-column: 1 / -1; }
+@media (min-width: 48rem) { .b-foot-grid { grid-template-columns: repeat(3, 1fr); } .b-foot-grid > :last-child { grid-column: auto; } }
 .b-foot h3 { font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #ffd60a; margin-bottom: 0.6rem; }
-.b-foot ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.35rem; color: #d6d6d6; }
+.b-foot ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; color: #d6d6d6; }
 .b-legal { margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid rgb(255 255 255 / 0.16); color: #bdbdbd; font-size: 0.8125rem; }
 
 /* compact shell for link confirmation and invitations */
@@ -175,6 +176,20 @@ html:has(.brand), body:has(.brand) { background: #ffffff; }
 .b-doc p, .b-doc li { line-height: 1.6; }
 .b-doc ul { padding-left: 1.25rem; display: grid; gap: 0.4rem; margin: 0.5rem 0; }
 .b-doc a { text-decoration: underline; text-underline-offset: 2px; }
-.brand .b-foot .b-legal a:not(.btn), .brand .b-foot ul a:not(.btn) { color: #ffffff; text-decoration: underline; text-underline-offset: 2px; }
+
 .b-auth-legal { text-align: center; margin: 1.25rem 0 0; font-size: 0.875rem; color: inherit; }
 .brand .b-auth-legal a:not(.btn) { color: inherit; font-weight: 600; }
+
+/* Footer links: no underline; a clear hover/press highlight; comfortable 44pt touch targets on phones. */
+.brand .b-foot ul a:not(.btn), .brand .b-foot .b-legal-links a:not(.btn) {
+  display: flex; align-items: center; min-height: 2.75rem; margin-inline: -0.75rem; padding: 0.35rem 0.75rem; border-radius: 0.625rem;
+  color: #ffffff; text-decoration: none !important; -webkit-tap-highlight-color: transparent; transition: background-color 0.15s, color 0.15s;
+}
+.brand .b-foot .b-legal-links a:not(.btn) { display: inline-flex; margin-inline: 0; }
+.b-legal-links { display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0.5rem 0 0 -0.75rem; }
+.b-legal p { margin: 0; }
+@media (hover: hover) {
+  .brand .b-foot ul a:not(.btn):hover, .brand .b-foot .b-legal-links a:not(.btn):hover { background: #ffd60a; color: #0a0a0a; }
+}
+.brand .b-foot ul a:not(.btn):active, .brand .b-foot .b-legal-links a:not(.btn):active { background: #ffd60a; color: #0a0a0a; }
+.brand .b-foot ul a:not(.btn):focus-visible, .brand .b-foot .b-legal-links a:not(.btn):focus-visible { outline: 3px solid #ffd60a; outline-offset: 1px; }

@@ -106,3 +106,6 @@ Sidebar and phone tab bar are black with a 4px yellow edge; the active item is a
 
 ## D-67: Front-page footer pages; browser only
 Every Product and Privacy footer item has a public page at `/features/<slug>` (content in `src/lib/feature-pages.ts`, generic, names no community). The Install column, nav link and guide were removed because Achelon is used in the browser. Terms and Privacy links appear in the Legal column, the footer line, the sign-in card, and under every invite and confirm page; the invite consent text links to both. The Legal links were invisible before (dark link colour on black): fixed with matching specificity.
+
+## D-68: Footer link style
+Front-page footer links have no underline, a yellow highlight with black text on hover (only on devices that hover), the same highlight while pressed, a yellow focus ring, and 44pt minimum touch targets. On phones the columns are two across with Legal below. The Terms/Privacy links sit in their own row, apart from the copyright text, so they pass the "link in a text block" accessibility rule without an underline.
