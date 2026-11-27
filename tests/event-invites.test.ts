@@ -75,6 +75,11 @@ describe("time zones", () => {
     expect(g.others.length).toBeGreaterThan(300);
     expect(g.others.every((o) => /^\(GMT[+-]\d/.test(o.label) || o.label === o.value)).toBe(true);
   });
+  it("the first-render list is deterministic and includes the stored zone", async () => {
+    const { staticTimezoneGroups } = await import("@/lib/timezones");
+    expect(staticTimezoneGroups().common[0].label).toBe("(GMT+8) Malaysia · Kuala Lumpur");
+    expect(staticTimezoneGroups("Europe/Berlin").others).toEqual([{ value: "Europe/Berlin", label: "Europe/Berlin" }]);
+  });
   it("keeps an unknown stored zone selectable", () => {
     expect(timezoneGroups("Mars/Olympus").others[0]).toEqual({ value: "Mars/Olympus", label: "Mars/Olympus" });
   });

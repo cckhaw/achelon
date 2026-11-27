@@ -41,3 +41,19 @@ export function timezoneGroups(current?: string | null, at = new Date()): { comm
   if (current && !commonSet.has(current) && !others.some((o) => o.value === current)) others.unshift({ value: current, label: current });
   return { common, others };
 }
+
+/**
+ * Fixed labels for the common zones (standard time). Server and browser format zone names differently (different ICU data),
+ * so the first render must not depend on Intl or React reports a hydration mismatch; live offsets replace these after mount.
+ */
+const STATIC_OFFSET: Record<string, string> = {
+  "Asia/Kuala_Lumpur": "+8", "Asia/Singapore": "+8", "Asia/Jakarta": "+7", "Asia/Bangkok": "+7", "Asia/Ho_Chi_Minh": "+7", "Asia/Manila": "+8", "Asia/Hong_Kong": "+8", "Asia/Shanghai": "+8",
+  "Asia/Tokyo": "+9", "Asia/Seoul": "+9", "Asia/Kolkata": "+5:30", "Asia/Dubai": "+4", "Australia/Perth": "+8", "Australia/Sydney": "+10", "Pacific/Auckland": "+12",
+  "Europe/London": "+0", "Europe/Paris": "+1", "America/New_York": "-5", "America/Los_Angeles": "-8", "UTC": "+0",
+};
+
+export function staticTimezoneGroups(current?: string | null): { common: TimezoneOption[]; others: TimezoneOption[] } {
+  const common = COMMON_TIMEZONES.map((z) => ({ value: z, label: z === DEFAULT_TIMEZONE ? "(GMT+8) Malaysia · Kuala Lumpur" : `(GMT${STATIC_OFFSET[z] ?? "+0"}) ${pretty(z)}` }));
+  const others = current && !COMMON_TIMEZONES.includes(current) ? [{ value: current, label: current }] : [];
+  return { common, others };
+}
