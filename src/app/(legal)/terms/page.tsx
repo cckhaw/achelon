@@ -4,6 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = { title: "Terms of Service · Achelon" };
 
 const UPDATED = "27 November 2026";
+const CONTACT = "me@khaw.cc";
 
 export default function TermsPage() {
   return (
@@ -12,7 +13,7 @@ export default function TermsPage() {
       <h1>Terms of Service</h1>
       <p className="b-sub">Last updated {UPDATED}</p>
 
-      <p>These terms govern your use of Achelon, a private, invite-only platform that communities use to run their member directory, events and races. By signing in or accepting an invitation you agree to them. If you do not agree, do not use Achelon.</p>
+      <p>These terms govern your use of Achelon (&ldquo;Achelon&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;), a private, invite-only platform that communities use to run their member directory, events and races. By signing in or accepting an invitation you agree to them. If you do not agree, do not use Achelon.</p>
 
       <h2>1. The service</h2>
       <p>Achelon is operated for communities (each a &ldquo;community&rdquo;). Each community is run by its own owners and administrators, who decide who is invited, what is published and how the community is run. Achelon provides the software; it does not organise, supervise or endorse any event.</p>
@@ -49,10 +50,10 @@ export default function TermsPage() {
       <p>Achelon is provided &ldquo;as is&rdquo; without warranties of any kind, to the fullest extent permitted by law. To the same extent, Achelon and its operators are not liable for indirect or consequential loss, for loss arising from any event or from the conduct of members or organisers, or for loss of data beyond what the law does not allow us to exclude. Nothing in these terms limits liability that cannot lawfully be limited.</p>
 
       <h2>11. Governing law</h2>
-      <p>These terms are governed by the law of the jurisdiction in which the operator of your community is established, unless mandatory local consumer law says otherwise.</p>
+      <p>These terms are governed by the laws of Malaysia, and the courts of Malaysia have jurisdiction over any dispute, unless mandatory consumer law where you live says otherwise.</p>
 
       <h2>12. Contact</h2>
-      <p>For questions about these terms, or to report a problem, contact an owner or administrator of your community; they will escalate to the platform operator if needed.</p>
+      <p>Achelon is operated by Achelon. For questions about these terms, or to report a problem, email <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. You can also ask an owner or administrator of your community, who will pass it on if needed.</p>
     </>
   );
 }

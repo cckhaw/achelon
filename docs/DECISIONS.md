@@ -97,3 +97,6 @@ The member app uses the same palette as the front door: dark = black surfaces wi
 
 ## D-64: Tablet layout
 The sidebar takes at most 30% of the screen (`--side-w`), so iPad-size screens at 200% text keep room for content. A `tablet` Playwright project (iPad metrics) runs the visual checks.
+
+## D-65: Legal page details
+Operator named as "Achelon", contact `me@khaw.cc`, governing law Malaysia (Terms §11, §12; Privacy §1, §9, §12). Have the text reviewed by a lawyer before relying on it.
